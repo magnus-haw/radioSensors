@@ -37,9 +37,8 @@ while True:
         display.fill(0)
 
         try:
-            rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 916.0)
+            rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
             rfm.encryption_key = rfm_key
-            rfm.tx_power = 23
             display.text('RFM69: Detected', 0, 0, 1)
             time.sleep(0.1)
         except RuntimeError as error:
