@@ -26,6 +26,7 @@ int samples[NUMSAMPLES];
 #define RFM69_RST 4
 
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
+int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 struct SensorData {
   float temp;
@@ -41,10 +42,6 @@ void setup()
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // OLED
   display.display();
   delay(2000);
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0,0);
 
   pinMode(RFM69_RST, OUTPUT);                 // RFM
   digitalWrite(RFM69_RST, LOW);
@@ -55,16 +52,19 @@ void setup()
   delay(10);
   
   if (!rf69.init()) {
-    display.clearDisplay();
+    prepareDisplay();
+    display.setCursor(0,0);
     display.print("RFM69 radio init failed");
     while (1);
   }
-  display.clearDisplay();
+  prepareDisplay();
+  display.setCursor(0,0);
   display.print("RFM69 radio init OK!");
 
   
   if (!rf69.setFrequency(RF69_FREQ)) {
-    display.clearDisplay();
+    prepareDisplay();
+    display.setCursor(0,0);
     display.print("set frequency failed");
   }
 
@@ -85,7 +85,8 @@ void loop() {
   if (rf69.recv(buf, &len)) {
       if (!len) return;
       buf[len] = 0;
-      display.clearDisplay();
+      prepareDisplay();
+      display.setCursor(0,0);
       display.print("Received [");
       display.print(len);
       display.print("]: ");
@@ -105,22 +106,25 @@ void loop() {
           float thermTemp = getTemp();
           rf69.send((uint8_t *)(&thermTemp), sizeof(thermTemp));
           rf69.waitPacketSent();
-          display.clearDisplay();
+          prepareDisplay();
           display.print("Sent Temperature: ");
           display.println(thermTemp);
+          display.display();
+          delay(2000);
         }
       }
     } else {
-      display.clearDisplay();
+      prepareDisplay();
       display.println("Receive failed");
     }
+  } else {
+    prepareDisplay();
+    display.print("Listening @ ");
+    display.print((int)RF69_FREQ);
+    display.print(" MHz");
   }
 
-  display.clearDisplay();
-  display.print("Listening @ ");
-  display.print((int)RF69_FREQ);
-  display.print(" MHz");
-  delay(2000);
+  display.display();
 }
 
 float getTemp() {
@@ -150,4 +154,11 @@ float getTemp() {
   thermTemp -= 273.15;
 
   return thermTemp;
+}
+
+void prepareDisplay() {
+  display.clearDisplay();
+  display.setTextSize(1.5);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0,0);
 }
