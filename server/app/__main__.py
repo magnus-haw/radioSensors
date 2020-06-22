@@ -48,7 +48,7 @@ while True:
             break
 
         # Receiving sensor data
-        packet = rfm69.receive()
+        packet = rfm.receive()
         if packet is None:
             pass
         else:
