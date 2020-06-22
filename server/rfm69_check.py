@@ -3,7 +3,7 @@ import busio
 from digitalio import DigitalInOut, Direction, Pull
 import board
 import adafruit_ssd1306
-import adafruit_rfm69
+import adafruit_rfm9x
 
 btnA = DigitalInOut(board.D5)
 btnA.direction = Direction.INPUT
@@ -29,39 +29,41 @@ height = display.height
 CS = DigitalInOut(board.CE1)
 RESET = DigitalInOut(board.D25)
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-rfm69 = None
+rfm = None
+rfm_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 prev_packet = None
-rfm69.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
 while True:
         display.fill(0)
 
         try:
-            rfm69 = adafruit_rfm69.RFM69(spi, CS, RESET, 916.0)
-            display.text('RFM69: Detected', 0, 0, 1)
+            rfm = adafruit_rfm9x.RFM9x(spi, CS, RESET, 916.0)
+            rfm.encryption_key = rfm_key
+            rfm.tx_power = 23
+            display.text('RFM9x: Detected', 0, 0, 1)
             time.sleep(0.1)
         except RuntimeError as error:
-            display.text('RFM69: ERROR', 0, 0, 1)
-            print('RFM69 Error: ', error)
+            display.text('RFM9x: ERROR', 0, 0, 1)
+            print('RFM9x Error: ', error)
             break
 
         if not btnA.value:
             # Send Button A
             display.fill(0)
             button_a_data = bytes("Button A!\r\n","utf-8")
-            rfm69.send(button_a_data)
+            rfm.send(button_a_data)
             display.text('Sent Button A!', 25, 15, 1)
         elif not btnB.value:
             # Send Button B
             display.fill(0)
             button_b_data = bytes("Button B!\r\n","utf-8")
-            rfm69.send(button_b_data)
+            rfm.send(button_b_data)
             display.text('Sent Button B!', 25, 15, 1)
         elif not btnC.value:
             # Send Button C
             display.fill(0)
             button_c_data = bytes("Button C!\r\n","utf-8")
-            rfm69.send(button_c_data)
+            rfm.send(button_c_data)
             display.text('Sent Button C!', 25, 15, 1)
         
         display.show()

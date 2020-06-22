@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1992fc688aea19ac6d656105a4e6484a9d446a22b3b733471c58c948810ec111"
+            "sha256": "cff6b6f8e8b7abd0608d887d79d356d387f5bc7cf303c5e426c87626c61ff2ad"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -38,6 +38,13 @@
         "adafruit-circuitpython-rfm69": {
             "hashes": [
                 "sha256:bcf16ca65200a50e61d19d435523b83b4bbf8f6e7fbfe9255cddfb4b8dc6d445"
+            ],
+            "index": "pypi",
+            "version": "==2.0.0"
+        },
+        "adafruit-circuitpython-rfm9x": {
+            "hashes": [
+                "sha256:b7f9b6db52a08e1b46ba8dfedba4f119b0fb74f2f49dd47fe3ed3c65a2cd8159"
             ],
             "index": "pypi",
             "version": "==2.0.0"
