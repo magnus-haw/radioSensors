@@ -72,14 +72,14 @@ while True:
         elif not btnB.value:
             # Send Button B
             display.fill(0)
-            button_b_data = bytes("request_sensor","utf-8")
+            button_b_data = bytes("listen_ready","utf-8")
             rfm.send(button_b_data)
             display.text('Sent Button B!', 25, 15, 1)
             print("Sent B")
         elif not btnC.value:
             # Send Button C
             display.fill(0)
-            button_c_data = bytes("request_sensor","utf-8")
+            button_c_data = bytes("listen_stop","utf-8")
             rfm.send(button_c_data)
             display.text('Sent Button C!', 25, 15, 1)
             print("Sent C")

@@ -26,7 +26,6 @@ int samples[NUMSAMPLES];
 #define RFM69_RST 4
 
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
-int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 struct SensorData {
   float temp;
@@ -77,7 +76,9 @@ void setup()
 
 void loop() {
  if (stream) {
-  
+  float thermTemp = getTemp();
+  rf69.send((uint8_t *)(&thermTemp), sizeof(thermTemp));
+  rf69.waitPacketSent();
  }
  if (rf69.available()) { 
   uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
