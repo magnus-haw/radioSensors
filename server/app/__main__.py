@@ -36,6 +36,7 @@ prev_packet = None
 while True:
         display.fill(0)
 
+        # Check if RFM69 is reachable
         try:
             rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
             rfm.encryption_key = rfm_key
@@ -46,6 +47,19 @@ while True:
             print('RFM69 Error: ', error)
             break
 
+        # Receiving sensor data
+        packet = rfm69.receive()
+        if packet is None:
+            pass
+        else:
+            display.fill(0)
+            prev_packet = packet
+            packet_text = str(prev_packet, "utf-8")
+            display.text('RX: ', 0, 0, 1)
+            display.text(packet_text, 25, 0, 1)
+            time.sleep(1)
+
+        # Buttons
         if not btnA.value:
             # Send Button A
             display.fill(0)

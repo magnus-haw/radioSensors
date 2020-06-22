@@ -1,138 +1,153 @@
-// rf69 demo tx rx.pde
-// -*- mode: C++ -*-
-// Example sketch showing how to create a simple messageing client
-// with the RH_RF69 class. RH_RF69 class does not provide for addressing or
-// reliability, so you should only use RH_RF69  if you do not need the higher
-// level messaging abilities.
-// It is designed to work with the other example rf69_server.
-// Demonstrates the use of AES encryption, setting the frequency and modem 
-// configuration
-
 #include <SPI.h>
-#include <RH_RF69.h>
+#include <Wire.h>
+#include <RH_RF69.h>          // RFM
+#include <Adafruit_GFX.h>     // OLED
+#include <Adafruit_SSD1306.h> // OLED
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 32
 
-/************ Radio Setup ***************/
+// OLED
+#define OLED_RESET 4
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Change to 434.0 or other frequency, must match RX's freq!
+// Themistor
+#define THERMISTORPIN       A0 
+#define THERMISTORNOMINAL   10000 
+#define TEMPERATURENOMINAL  25
+#define NUMSAMPLES          5
+#define BCOEFFICIENT        3950
+#define SERIESRESISTOR      10000 
+int samples[NUMSAMPLES];
+
+// RFM
 #define RF69_FREQ 915.0
+#define RFM69_CS  8
+#define RFM69_INT 3
+#define RFM69_RST 4
 
-#if defined (__AVR_ATmega32U4__) // Feather 32u4 w/Radio
-  #define RFM69_CS      8
-  #define RFM69_INT     7
-  #define RFM69_RST     4
-#endif
-
-#if defined(ADAFRUIT_FEATHER_M0) // Feather M0 w/Radio
-  #define RFM69_CS      8
-  #define RFM69_INT     3
-  #define RFM69_RST     4
-#endif
-
-#if defined (__AVR_ATmega328P__)  // Feather 328P w/wing
-  #define RFM69_INT     3  // 
-  #define RFM69_CS      4  //
-  #define RFM69_RST     2  // "A"
-#endif
-
-#if defined(ESP8266)    // ESP8266 feather w/wing
-  #define RFM69_CS      2    // "E"
-  #define RFM69_IRQ     15   // "B"
-  #define RFM69_RST     16   // "D"
-#endif
-
-#if defined(ESP32)    // ESP32 feather w/wing
-  #define RFM69_RST     13   // same as LED
-  #define RFM69_CS      33   // "B"
-  #define RFM69_INT     27   // "A"
-#endif
-
-/* Teensy 3.x w/wing
-#define RFM69_RST     9   // "A"
-#define RFM69_CS      10   // "B"
-#define RFM69_IRQ     4    // "C"
-#define RFM69_IRQN    digitalPinToInterrupt(RFM69_IRQ )
-*/
- 
-/* WICED Feather w/wing 
-#define RFM69_RST     PA4     // "A"
-#define RFM69_CS      PB4     // "B"
-#define RFM69_IRQ     PA15    // "C"
-#define RFM69_IRQN    RFM69_IRQ
-*/
-
-// Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
-int16_t packetnum = 0;  // packet counter, we increment per xmission
+struct SensorData {
+  float temp;
+} Sensor;
+bool stream = false;
 
 void setup() 
 {
   Serial.begin(115200);
-  while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
 
-  Serial.println("Starting...");
+  analogReference(AR_EXTERNAL);               // Thermistor
 
-  pinMode(RFM69_RST, OUTPUT);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // OLED
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0,0);
+
+  pinMode(RFM69_RST, OUTPUT);                 // RFM
   digitalWrite(RFM69_RST, LOW);
 
-  Serial.println("Feather RFM69 RX Test!");
-  Serial.println();
-
-  // manual reset
   digitalWrite(RFM69_RST, HIGH);
   delay(10);
   digitalWrite(RFM69_RST, LOW);
   delay(10);
   
   if (!rf69.init()) {
-    Serial.println("RFM69 radio init failed");
+    display.clearDisplay();
+    display.print("RFM69 radio init failed");
     while (1);
   }
-  Serial.println("RFM69 radio init OK!");
+  display.clearDisplay();
+  display.print("RFM69 radio init OK!");
+
   
-  // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
-  // No encryption
   if (!rf69.setFrequency(RF69_FREQ)) {
-    Serial.println("setFrequency failed");
+    display.clearDisplay();
+    display.print("set frequency failed");
   }
 
-  // If you are using a high power RF69 eg RFM69HW, you *must* set a Tx power with the
-  // ishighpowermodule flag set like this:
-  rf69.setTxPower(20, true);  // range from 14-20 for power, 2nd arg must be true for 69HCW
+  rf69.setTxPower(20, true);
 
-  // The encryption key has to be the same as the one in the server
   uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
   rf69.setEncryptionKey(key);
-
-  Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
 }
 
-
 void loop() {
- if (rf69.available()) {
-    // Should be a message for us now   
-    uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-    uint8_t len = sizeof(buf);
-    if (rf69.recv(buf, &len)) {
+ if (stream) {
+  
+ }
+ if (rf69.available()) { 
+  uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+  uint8_t len = sizeof(buf);
+  if (rf69.recv(buf, &len)) {
       if (!len) return;
       buf[len] = 0;
-      Serial.print("Received [");
-      Serial.print(len);
-      Serial.print("]: ");
-      Serial.println((char*)buf);
-      Serial.print("RSSI: ");
-      Serial.println(rf69.lastRssi(), DEC);
-
-      if (strstr((char *)buf, "Hello World")) {
-        // Send a reply!
-        uint8_t data[] = "And hello back to you";
-        rf69.send(data, sizeof(data));
-        rf69.waitPacketSent();
-        Serial.println("Sent a reply");
+      display.clearDisplay();
+      display.print("Received [");
+      display.print(len);
+      display.print("]: ");
+      display.println((char*)buf);
+      display.print("RSSI: ");
+      display.println(rf69.lastRssi(), DEC);
+  
+      if (strstr((char *)buf, "listen_stop")) {
+        stream = false;
+      }
+      if (strstr((char *)buf, "listen_ready")) {
+        stream = true;
+        return;
+      }
+      if (!stream) {
+        if (strstr((char *)buf, "request_sensor")) {
+          float thermTemp = getTemp();
+          rf69.send((uint8_t *)(&thermTemp), sizeof(thermTemp));
+          rf69.waitPacketSent();
+          display.clearDisplay();
+          display.print("Sent Temperature: ");
+          display.println(thermTemp);
+        }
       }
     } else {
-      Serial.println("Receive failed");
+      display.clearDisplay();
+      display.println("Receive failed");
     }
   }
+
+  display.clearDisplay();
+  display.print("Listening @ ");
+  display.print((int)RF69_FREQ);
+  display.print(" MHz");
+  delay(2000);
+}
+
+float getTemp() {
+  uint8_t i;
+  float average;
+ 
+  for (i=0; i< NUMSAMPLES; i++) {
+   samples[i] = analogRead(THERMISTORPIN);
+   delay(10);
+  }
+  
+  average = 0;
+  for (i=0; i< NUMSAMPLES; i++) {
+     average += samples[i];
+  }
+  average /= NUMSAMPLES;
+  
+  average = 1023 / average - 1;
+  average = SERIESRESISTOR / average;
+  
+  float thermTemp;
+  thermTemp = average / THERMISTORNOMINAL;     
+  thermTemp = log(thermTemp);                  
+  thermTemp /= BCOEFFICIENT;
+  thermTemp += 1.0 / (TEMPERATURENOMINAL + 273.15);
+  thermTemp = 1.0 / thermTemp;
+  thermTemp -= 273.15;
+
+  return thermTemp;
 }
