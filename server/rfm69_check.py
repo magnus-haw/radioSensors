@@ -31,8 +31,7 @@ RESET = DigitalInOut(board.D25)
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
 rfm69 = None
 prev_packet = None
-rfm69.encryption_key=
-b'#x01#x02#x03#x04#x05#x06#x07#x08#x01#x02#x03#x04#x05#x06#x07#x08'
+rfm69.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
 while True:
         display.fill(0)
@@ -44,20 +43,26 @@ while True:
         except RuntimeError as error:
             display.text('RFM69: ERROR', 0, 0, 1)
             print('RFM69 Error: ', error)
-            break;
+            break
 
         if not btnA.value:
-            display.text('Ada', width-85, height-7, 1)
-            display.show()
-            time.sleep(0.1)
-        if not btnB.value:
-            display.text('Fruit', width-75, height-7, 1)
-            display.show()
-            time.sleep(0.1)
-        if not btnC.value:
-            display.text('Radio', width-65, height-7, 1)
-            display.show()
-            time.sleep(0.1)
-
+            # Send Button A
+            display.fill(0)
+            button_a_data = bytes("Button A!\r\n","utf-8")
+            rfm69.send(button_a_data)
+            display.text('Sent Button A!', 25, 15, 1)
+        elif not btnB.value:
+            # Send Button B
+            display.fill(0)
+            button_b_data = bytes("Button B!\r\n","utf-8")
+            rfm69.send(button_b_data)
+            display.text('Sent Button B!', 25, 15, 1)
+        elif not btnC.value:
+            # Send Button C
+            display.fill(0)
+            button_c_data = bytes("Button C!\r\n","utf-8")
+            rfm69.send(button_c_data)
+            display.text('Sent Button C!', 25, 15, 1)
+        
         display.show()
         time.sleep(0.1)
