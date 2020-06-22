@@ -41,7 +41,7 @@ while True:
             rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
             rfm.encryption_key = rfm_key
             display.text('RFM69: Detected', 0, 0, 1)
-            print('RFM69: Detected')
+            # print('RFM69: Detected')
             time.sleep(0.1)
         except RuntimeError as error:
             display.text('RFM69: ERROR', 0, 0, 1)
@@ -59,7 +59,6 @@ while True:
             display.text('RX: ', 0, 0, 1)
             display.text(packet_text, 25, 0, 1)
             print("Received: ", packet_text)
-            time.sleep(1)
 
         # Buttons
         if not btnA.value:

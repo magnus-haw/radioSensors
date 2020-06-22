@@ -77,7 +77,9 @@ void setup()
 void loop() {
  if (stream) {
   float thermTemp = getTemp();
-  rf69.send((uint8_t *)(&thermTemp), sizeof(thermTemp));
+  char str[16];
+  snprintf(str, sizeof(str), "%.2f", thermTemp);
+  rf69.send((uint8_t *)str, sizeof(thermTemp));
   rf69.waitPacketSent();
  }
  if (rf69.available()) { 
@@ -105,8 +107,9 @@ void loop() {
       if (!stream) {
         if (strstr((char *)buf, "request_sensor")) {
           float thermTemp = getTemp();
-          rf69.send((uint8_t *)(&thermTemp), sizeof(thermTemp));
-          rf69.waitPacketSent();
+          char str[16];
+          snprintf(str, sizeof(str), "%.2f", thermTemp);
+          rf69.send((uint8_t *)str, sizeof(thermTemp));
           prepareDisplay();
           display.print("Sent Temperature: ");
           display.println(thermTemp);
