@@ -3,7 +3,7 @@ import busio
 from digitalio import DigitalInOut, Direction, Pull
 import board
 import adafruit_ssd1306
-import adafruit_rfm9x
+import adafruit_rfm69
 
 btnA = DigitalInOut(board.D5)
 btnA.direction = Direction.INPUT
@@ -37,14 +37,14 @@ while True:
         display.fill(0)
 
         try:
-            rfm = adafruit_rfm9x.RFM9x(spi, CS, RESET, 916.0)
+            rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 916.0)
             rfm.encryption_key = rfm_key
             rfm.tx_power = 23
-            display.text('RFM9x: Detected', 0, 0, 1)
+            display.text('RFM69: Detected', 0, 0, 1)
             time.sleep(0.1)
         except RuntimeError as error:
-            display.text('RFM9x: ERROR', 0, 0, 1)
-            print('RFM9x Error: ', error)
+            display.text('RFM69: ERROR', 0, 0, 1)
+            print('RFM69 Error: ', error)
             break
 
         if not btnA.value:

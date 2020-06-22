@@ -9,7 +9,3 @@ verify_ssl = true
 adafruit-circuitpython-ssd1306 = "*"
 adafruit-circuitpython-framebuf = "*"
 adafruit-circuitpython-rfm69 = "*"
-adafruit-circuitpython-rfm9x = "*"
-
-[requires]
-python_version = "3.8"
