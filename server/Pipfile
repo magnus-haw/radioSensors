@@ -9,3 +9,6 @@ verify_ssl = true
 adafruit-circuitpython-ssd1306 = "*"
 adafruit-circuitpython-framebuf = "*"
 adafruit-circuitpython-rfm69 = "*"
+flask = "*"
+flask-restful = "*"
+flask-sqlalchemy = "*"
