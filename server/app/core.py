@@ -2,6 +2,7 @@ import datetime
 from flask import Flask
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
+from sensor import Sensor
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
@@ -23,4 +24,8 @@ def insert_data():
 
 if __name__ == "__main__":
     app.run(debug=True, port=80, host='0.0.0.0')
+    sensor = Sensor()
+    while True: 
+        sensor.loop()
+
     
