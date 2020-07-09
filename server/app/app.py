@@ -1,19 +1,28 @@
+import datetime
 from flask import Flask
 from flask import request
-from models import Schema
-from models import TemperatureModel
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://sensor.db'
+
+db = SQLAlchemy(app)
+
+from models import add_data
 
 @app.route("/")
 def show_data():
-    return str(TemperatureModel().get())
+    return str(list())
 
 @app.route("/", methods=["POST"])
 def insert_data():
     print(request.get_json())
-    return str(TemperatureModel().update(data=request.get_json()))
+    add_data(request.get_json())
+    return "OK"
 
 if __name__ == "__main__":
-    Schema()
     app.run(debug=True, port=80, host='0.0.0.0')
+    db.create_all()
+    db.session.commit()
     
