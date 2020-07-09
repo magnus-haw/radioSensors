@@ -4,8 +4,8 @@ from app import db
 
 class SensorData(db.Model):
     id          = Column(Integer,       nullable=False, primary_key=True)
-    data        = Column(Float,         nullabe=False)
-    timestamp   = Column(DateTime,      nullabe=False, default=datetime.datetime.utcnow)
+    data        = Column(Float,         nullable=False)
+    timestamp   = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow)
 
 def as_dict(self):
     result = {getattr(self, col.name) for col in self.__table__.columns}
