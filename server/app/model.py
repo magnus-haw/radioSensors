@@ -1,5 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime
+from flask_restful import reqparse
 from app import db
 
 class SensorData(db.Model):
@@ -12,7 +13,12 @@ def as_dict(self):
     return result
 
 def add_data(data):
-    db.session.add(data)
+    parser = reqparse.RequestParser()
+    parser.add_argument('data', type=float, required=True)
+
+    data = parser.parse_args()
+
+    db.session.add(SensorData(**data))
     db.session.commit()
 
 def list():
