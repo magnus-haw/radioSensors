@@ -8,9 +8,9 @@ class SensorData(db.Model):
     data        = Column(Float,         nullable=False)
     timestamp   = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow)
 
-def as_dict(self):
-    result = {getattr(self, col.name) for col in self.__table__.columns}
-    return result
+    def as_dict(self):
+        result = {getattr(self, col.name) for col in self.__table__.columns}
+        return result
 
 def add_data(data):
     parser = reqparse.RequestParser()

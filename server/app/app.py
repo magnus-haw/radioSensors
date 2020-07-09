@@ -12,6 +12,10 @@ db = SQLAlchemy(app)
 
 import model
 
+db.create_all()
+db.session.commit()
+print('created')
+
 @app.route("/")
 def show_data():
     return str(list())
@@ -24,6 +28,4 @@ def insert_data():
 
 if __name__ == "__main__":
     app.run(debug=True, port=80, host='0.0.0.0')
-    db.create_all()
-    db.session.commit()
     
