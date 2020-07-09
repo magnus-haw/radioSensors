@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime
 from flask_restful import reqparse
-from app import db
+from core import db
 
 # Defining a schema for all sensor data
 # class SensorData(db.Model):
