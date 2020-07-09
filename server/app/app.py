@@ -14,7 +14,7 @@ import model
 
 @app.route("/")
 def show_data():
-    return str(list())
+    return str(model.list())
 
 @app.route("/", methods=["POST"])
 def insert_data():
