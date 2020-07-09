@@ -4,6 +4,7 @@ from digitalio import DigitalInOut, Direction, Pull
 import board
 import adafruit_ssd1306
 import adafruit_rfm69
+import datetime
 
 INTERVAL = 1.0
 
@@ -40,6 +41,7 @@ class Sensor:
             self.rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
             self.rfm.encryption_key = rfm_key
             print('RFM69: Detected')
+            self.cache = []
         except RuntimeError as error:
             print('RFM69 Error: ', error)
     
@@ -56,6 +58,15 @@ class Sensor:
             self.display.text('RX: ', 0, 0, 1)
             self.display.text(packet_text, 25, 0, 1)
             print('Received: ', packet_text)
+            self.cache.append({
+                'data': packet_text,
+                'timestamp': datetime.datetime.utcnow()
+            })
 
         self.display.show()
         time.sleep(INTERVAL)
+    
+    def retrieve_cache(self):
+        old_cache = self.cache
+        self.cache.clear()
+        return old_cache
