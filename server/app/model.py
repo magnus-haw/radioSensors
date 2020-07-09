@@ -23,3 +23,7 @@ def add_data(data):
 
 def list():
     return SensorData.query.all()
+
+db.create_all()
+db.session.commit()
+print('created')

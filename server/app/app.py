@@ -12,10 +12,6 @@ db = SQLAlchemy(app)
 
 import model
 
-db.create_all()
-db.session.commit()
-print('created')
-
 @app.route("/")
 def show_data():
     return str(list())
