@@ -24,8 +24,5 @@ def insert_data():
 
 if __name__ == "__main__":
     app.run(debug=True, port=80, host='0.0.0.0')
-    sensor = Sensor()
-    while True: 
-        sensor.loop()
 
     
