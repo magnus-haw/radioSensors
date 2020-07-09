@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://sensor.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sensor.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
