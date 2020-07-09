@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def show_data():
-    return TemperatureModel().get().split(' ')
+    return str(TemperatureModel().get())
 
 @app.route("/", methods=["POST"])
 def insert_data():
@@ -15,5 +15,5 @@ def insert_data():
 
 if __name__ == "__main__":
     Schema()
-    app.run()
+    app.run(debug=True, port=80, host='0.0.0.0')
     
