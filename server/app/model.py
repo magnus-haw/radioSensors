@@ -27,6 +27,9 @@ class Point(db.Model):
     timestamp       = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow())
     sensor          = relationship("Sensor", back_populates="points")
 
+    def as_dict(self):
+        return {c.name: jsonify(getattr(self, c.name)) for c in self.__table__.columns}
+
 def add_experiment(experiment_name):
     experiment = Experiment(name=experiment_name)
     db.session.add(experiment)
@@ -52,14 +55,17 @@ def add_data(experiment_name, sensor_name, data):
 
 def list(by='all', name=''):
     if by == 'all':
-        return Point.query.all()
+        result = Point.query.all()
+        return [x.as_dict() for x in result]
     elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
-        return Point.query.join(Point.sensor.experiment, aliased=True).filter_by(name=name).all()
+        result = Point.query.join(Point.sensor.experiment, aliased=True).filter_by(name=name).all()
+        return [x.as_dict() for x in result]
     elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
-        return Point.query.join(Point.sensor, aliased=True).filter_by(name=name).all()
-    else: return None
+        result = Point.query.join(Point.sensor, aliased=True).filter_by(name=name).all()
+        return [x.as_dict() for x in result]
+    else: return []
 
 db.create_all()
 db.session.commit()
