@@ -20,8 +20,16 @@ db = SQLAlchemy(app)
 import model
 
 @app.route("/list")
-def show_data():
+def show_all_data():
     return str(model.list())
+
+@app.route("/list/sensor/<name>")
+def show_sensor_data(name):
+    return str(model.list(by='sensor', name=name))
+
+@app.route("/list/experiment/<name>")
+def show_experiment_data(name):
+    return str(model.list(by='experiment', name=name))
 
 @app.route("/stream")
 def stream_data():
