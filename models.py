@@ -3,7 +3,6 @@ import sqlite3
 class Schema:
     def __init__(self):
         self.conn = sqlite3.connect('todo.db')
-        self.create_user_table()
         self.create_to_do_table()
 
     def create_to_do_table(self):
@@ -11,54 +10,44 @@ class Schema:
         CREATE TABLE IF NOT EXISTS "Todo" (
           id INTEGER PRIMARY KEY,
           Title TEXT,
-          Description TEXT,
-          _is_done boolean,
-          _is_deleted boolean,
-          CreatedOn Date DEFAULT CURRENT_DATE,
-          DueDate Date,
-          UserId INTEGER FOREIGNKEY REFERENCES User(_id)
+          Description TEXT
         );
         """
         self.conn.execute(query)
-
-    def create_user_table(self):
-        query = """
-        CREATE TABLE IF NOT EXISTS "Todo" (
-          id INTEGER PRIMARY KEY,
-          Name TEXT,
-          Email EMAIL,
-          Todo_Items, 
-          Createdby INTEGER FOREIGNKEY REFERENCES User(_id)
-        );
-        """
-        self.conn.execute(query)
-        pass
 
 class ToDoModel:
-    TABLENAME = "TODO"
+    TABLENAME = "Todo"
 
     def __init__(self):
         self.conn = sqlite3.connect('todo.db')
+        self.conn.row_factory = sqlite3.Row
+
+    def __del__(self):
+        # body of destructor
+        self.conn.commit()
+        self.conn.close()
 
     def create(self, text, description):
-        query = f'insert into {TABLENAME} ' \
+        print(text,description)
+        query = f'insert into {self.TABLENAME} ' \
                 f'(Title, Description) ' \
                 f'values ("{text}","{description}")'
 
         result = self.conn.execute(query)
+        print(result)
+        return self.get_by_id(result.lastrowid)
+
+    def list_items(self,where_clause=""):
+        query = f"SELECT id, Title, Description " \
+                f"from {self.TABLENAME} "+ where_clause
+
+        result_set = self.conn.execute(query).fetchall()
+        result = [{column: row[i]
+                  for i, column in enumerate(result_set[0].keys())}
+                  for row in result_set]
         return result
 
-    def select(self, text, description):
-        query = f'view {TABLENAME} ' \
-                f'(Title, Description) ' \
-                f'values ("{text}","{description}")'
+    def get_by_id(self, _id):
+        where_clause = f"WHERE id={_id}"
+        return self.list_items(where_clause)
 
-    def delete(self, text, description):
-        query = f'look  {TABLENAME} ' \
-                f'(Title, Description) ' \
-                f'view values ("{text}","{description}")'
-
-    def update(self, text, description):
-        query = f'insert into {TABLENAME} ' \
-                f'(Title, Description) ' \
-                f'values ("{text}","{description}")'

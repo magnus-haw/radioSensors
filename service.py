@@ -6,4 +6,10 @@ class ToDoService:
         self.model = ToDoModel()
 
     def create(self, params):
-        self.model.create(params["text"], params["Description"])
+        text = params.get("Title")
+        description = params.get("Description")
+        return self.model.create(text,description)
+
+    def list(self):
+        response = self.model.list_items()
+        return response
