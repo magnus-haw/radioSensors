@@ -33,15 +33,14 @@ def add_experiment(experiment_name):
     db.session.commit()
 
 def add_sensor(experiment_name, sensor_name):
-    experiment = Experiment.filter_by(name=experiment_name).first()
+    experiment = Experiment.query.filter_by(name=experiment_name).first()
     sensor = Sensor(experiment=experiment, name=sensor_name)
     experiment.sensors.append(sensor)
     db.session.add(sensor)
     db.session.commit()
 
 def add_data(experiment_name, sensor_name, data):
-    experiment = Experiment.filter_by(name=experiment_name).first()
-    sensor = experiment.sensors.filter_by(name=sensor_name).first()
+    sensor = Sensor.query.filter_by(name=sensor_name).join(Sensor.experiment, aliased=True).filter_by(name=experiment_name).first()
     point = Point(data=data['value'])
     sensor.points.append(point)
     db.session.add(point)
