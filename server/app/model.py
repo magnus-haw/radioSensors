@@ -17,7 +17,7 @@ class TempData(db.Model):
     timestamp   = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow())
 
     def as_dict(self):
-        result = lambda r: {c.name: getattr(r, c.name) for c in TempData.__table__.columns}
+        result = {c.name: jsonify(getattr(self, c.name)) for c in self.__table__.columns}
         return result
 
 def add_data(data):
@@ -26,6 +26,12 @@ def add_data(data):
 
 def list():
     return [x.as_dict() for x in TempData.query.all()]
+
+def jsonify(x):
+    if type(x) is datetime.datetime:
+        return str(x)
+
+    return x
 
 db.create_all()
 db.session.commit()
