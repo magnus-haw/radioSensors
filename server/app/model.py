@@ -8,7 +8,7 @@ class Experiment(db.Model):
     __tablename__ = 'experiment'
     id              = Column(Integer,       primary_key=True)
     name            = Column(String,        nullable=False)
-    sensors         = relationship("Sensor", back_populates="experiment")
+    sensor_id       = relationship("Sensor", back_populates="experiment")
 
 class Sensor(db.Model):
     __tablename__ = 'sensor'
@@ -16,7 +16,7 @@ class Sensor(db.Model):
     name            = Column(String,        nullable=False)
     experiment_id   = Column(Integer,       ForeignKey('experiment.id'))
     experiment      = relationship("Experiment", back_populates="sensor")
-    points          = relationship("Point", back_populates="sensor")
+    point           = relationship("Point", back_populates="sensor")
 
 
 class Point(db.Model):
