@@ -7,6 +7,7 @@ import adafruit_rfm69
 import datetime
 
 INTERVAL = 1.0
+CACHE_INTERVAL = 3.0
 
 class Sensor:
     def __init__(self):
@@ -46,25 +47,31 @@ class Sensor:
             print('RFM69 Error: ', error)
     
     def loop(self):
-        self.display.fill(0)
-
-        packet = self.rfm.receive()
-        if packet is None:
-            pass
-        else:
+        cache_count = 0
+        while True:
             self.display.fill(0)
-            self.prev_packet = packet
-            packet_text = str(self.prev_packet, "utf-8")
-            self.display.text('RX: ', 0, 0, 1)
-            self.display.text(packet_text, 25, 0, 1)
-            print('Received: ', packet_text)
-            self.cache.append({
-                'data': packet_text,
-                'timestamp': datetime.datetime.utcnow()
-            })
 
-        self.display.show()
-        # time.sleep(INTERVAL)
+            packet = self.rfm.receive()
+            if packet is None:
+                pass
+            else:
+                self.display.fill(0)
+                self.prev_packet = packet
+                packet_text = str(self.prev_packet, "utf-8")
+                self.display.text('RX: ', 0, 0, 1)
+                self.display.text(packet_text, 25, 0, 1)
+                print('Received: ', packet_text)
+                self.cache.append({
+                    'data': packet_text,
+                    'timestamp': datetime.datetime.utcnow()
+                })
+                cache_count+=1
+                if (cache_count >= CACHE_INTERVAL):
+                    yield self.retrieve_cache()
+                    cache_count = 0
+
+            self.display.show()
+            # time.sleep(INTERVAL)
     
     def retrieve_cache(self):
         old_cache = self.cache
