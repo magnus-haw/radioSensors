@@ -2,7 +2,7 @@ import datetime
 from flask import Flask
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
-from sensor import Sensor
+from sensor.sensor import Sensor
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production

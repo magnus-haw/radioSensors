@@ -27,11 +27,6 @@ int samples[NUMSAMPLES];
 
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
-struct SensorData {
-  float temp;
-} Sensor;
-bool stream = false;
-
 void setup() 
 {
   Serial.begin(115200);
@@ -74,64 +69,21 @@ void setup()
   rf69.setEncryptionKey(key);
 }
 
-void loop() {
- if (stream) {
+void loop() 
+{
   float thermTemp = getTemp();
   char str[16];
   snprintf(str, sizeof(str), "%.2f", thermTemp);
   rf69.send((uint8_t *)str, sizeof(thermTemp));
   rf69.waitPacketSent();
- }
- if (rf69.available()) { 
-  uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-  uint8_t len = sizeof(buf);
-  if (rf69.recv(buf, &len)) {
-      if (!len) return;
-      buf[len] = 0;
-      prepareDisplay();
-      display.setCursor(0,0);
-      display.print("Received [");
-      display.print(len);
-      display.print("]: ");
-      display.println((char*)buf);
-      display.print("RSSI: ");
-      display.println(rf69.lastRssi(), DEC);
-  
-      if (strstr((char *)buf, "listen_stop")) {
-        stream = false;
-      }
-      if (strstr((char *)buf, "listen_ready")) {
-        stream = true;
-        return;
-      }
-      if (!stream) {
-        if (strstr((char *)buf, "request_sensor")) {
-          float thermTemp = getTemp();
-          char str[16];
-          snprintf(str, sizeof(str), "%.2f", thermTemp);
-          rf69.send((uint8_t *)str, sizeof(thermTemp));
-          prepareDisplay();
-          display.print("Sent Temperature: ");
-          display.println(thermTemp);
-          display.display();
-          delay(2000);
-        }
-      }
-    } else {
-      prepareDisplay();
-      display.println("Receive failed");
-    }
-  } else {
-    prepareDisplay();
-    display.print("Listening @ ");
-    display.print((int)RF69_FREQ);
-    display.print(" MHz");
-  }
-
+  prepareDisplay();
+  display.print("Sent Temperature: ");
+  display.println(str);
   display.display();
 }
 
-float getTemp() {
+float getTemp() 
+{
   uint8_t i;
   float average;
  
@@ -160,7 +112,8 @@ float getTemp() {
   return thermTemp;
 }
 
-void prepareDisplay() {
+void prepareDisplay() 
+{
   display.clearDisplay();
   display.setTextSize(1.5);
   display.setTextColor(SSD1306_WHITE);
