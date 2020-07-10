@@ -8,7 +8,7 @@ class Experiment(db.Model):
     __tablename__ = 'experiment'
     id              = Column(Integer,       primary_key=True)
     name            = Column(String,        nullable=False)
-    sensors         = relationship("Sensor", back_populates="experiment")
+    sensors         = relationship("Sensor", back_populates="experiment", lazy=True)
 
 class Sensor(db.Model):
     __tablename__ = 'sensor'
@@ -16,7 +16,7 @@ class Sensor(db.Model):
     name            = Column(String,        nullable=False)
     experiment_id   = Column(Integer,       ForeignKey('experiment.id'))
     experiment      = relationship("Experiment", back_populates="sensors")
-    points          = relationship("Point", back_populates="sensor")
+    points          = relationship("Point", back_populates="sensor", lazy=True)
 
 
 class Point(db.Model):
@@ -59,7 +59,7 @@ def list(by='all', name=''):
         return [x.as_dict() for x in result]
     elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
-        result = Point.query.join(Point.sensor.experiment, aliased=True).filter_by(name=name).all()
+        result = Sensor.query.filter_by(name=name).points.all()
         return [x.as_dict() for x in result]
     elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
