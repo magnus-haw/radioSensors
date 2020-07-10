@@ -48,7 +48,7 @@ def stream_data():
 def realtime_chart():
     return render_template('realtime.html')
 
-@app.route("/temperature", methods=["POST"])
+@app.route("/data", methods=["POST"])
 def insert_data():
     for data in request.get_json():
         model.add_data(data)

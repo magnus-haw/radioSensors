@@ -8,15 +8,15 @@ class Experiment(db.Model):
     __tablename__ = 'experiment'
     id              = Column(Integer,       primary_key=True)
     name            = Column(String,        nullable=False)
-    sensor          = relationship("Sensor", back_populates="experiment")
+    sensors         = relationship("Sensor", back_populates="experiment")
 
 class Sensor(db.Model):
     __tablename__ = 'sensor'
     id              = Column(Integer,       primary_key=True)
     name            = Column(String,        nullable=False)
     experiment_id   = Column(Integer,       ForeignKey('experiment.id'))
-    experiment      = relationship("Experiment", back_populates="sensor")
-    point           = relationship("Point", back_populates="sensor")
+    experiment      = relationship("Experiment", back_populates="sensors")
+    points          = relationship("Point", back_populates="sensor")
 
 
 class Point(db.Model):
@@ -25,7 +25,27 @@ class Point(db.Model):
     sensor_id       = Column(Integer,       ForeignKey('sensor.id'))
     value           = Column(Float,         nullable=False)
     timestamp       = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow())
-    sensor          = relationship("Sensor", back_populates="point")
+    sensor          = relationship("Sensor", back_populates="points")
+
+def add_experiment(experiment_name):
+    experiment = Experiment(name=experiment_name)
+    db.session.add(experiment)
+    db.session.commit()
+
+def add_sensor(experiment_name, sensor_name):
+    experiment = Experiment.filter_by(name=experiment_name).first()
+    sensor = Sensor(experiment=experiment, name=sensor_name)
+    experiment.sensors.append(sensor)
+    db.session.add(sensor)
+    db.session.commit()
+
+def add_data(experiment_name, sensor_name, data):
+    experiment = Experiment.filter_by(name=experiment_name).first()
+    sensor = experiment.sensors.filter_by(name=sensor_name).first()
+    point = Point(data=data['value'])
+    sensor.points.append(point)
+    db.session.add(point)
+    db.session.commit()
 
 # def add_data(data):
 #     db.session.add(TempData(data=data['data']))
