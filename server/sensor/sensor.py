@@ -63,8 +63,8 @@ class Sensor:
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)
                 self.cache.append({
-                    'data': packet_text,
-                    'timestamp': datetime.datetime.utcnow()
+                    'data': packet_text
+                    # 'timestamp': datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
                 })
                 cache_count+=1
                 if (cache_count >= CACHE_INTERVAL):

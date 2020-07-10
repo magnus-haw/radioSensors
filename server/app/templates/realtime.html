@@ -82,7 +82,7 @@
                     config.data.datasets[0].data.shift();
                 }
                 config.data.labels.push(data.timestamp);
-                config.data.datasets[0].data.push(data.value);
+                config.data.datasets[0].data.push(data.data);
                 lineChart.update();
             }
         }
