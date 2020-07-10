@@ -54,14 +54,15 @@ def add_data(experiment_name, sensor_name, data):
 #     db.session.commit()
 
 def list(by='all', name=''):
+    print(name)
     if by == 'all':
         result = Point.query.all()
         return [x.as_dict() for x in result]
-    elif by == 'experiment':
+    elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
         result = Sensor.query.filter_by(name=name).first().points
         return [x.as_dict() for x in result]
-    elif by == 'sensor':
+    elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
         result = []
         for sensor in Experiment.query.filter_by(name=name).first().sensors:
