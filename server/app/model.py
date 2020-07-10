@@ -59,11 +59,13 @@ def list(by='all', name=''):
         return [x.as_dict() for x in result]
     elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
-        result = Sensor.query.filter_by(name=name).points.all()
+        result = Sensor.query.filter_by(name=name).first().points
         return [x.as_dict() for x in result]
     elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
-        result = Point.query.join(Point.sensor, aliased=True).filter_by(name=name).all()
+        result = []
+        for sensor in Experiment.query.filter_by(name=name).first().sensors:
+            result += sensor.points
         return [x.as_dict() for x in result]
     else: return []
 
