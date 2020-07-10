@@ -21,11 +21,6 @@ class TempData(db.Model):
         return result
 
 def add_data(data):
-    # parser = reqparse.RequestParser()
-    # parser.add_argument('data', type=float, required=True)
-
-    # data = parser.parse_args()
-
     db.session.add(TempData(data=data['data']))
     db.session.commit()
 

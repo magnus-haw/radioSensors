@@ -26,9 +26,11 @@ def show_data():
 @app.route("/stream")
 def stream_data():
     def data_loop():
+        data = model.list()
         while True:
             try:
-                json_data = json.dumps(model.list()[-1])
+                print(data)
+                json_data = json.dumps(data[-1])
                 yield f"data:{json_data}\n\n"
                 time.sleep(DATA_LOOP_INTERVAL)
             except IndexError:
