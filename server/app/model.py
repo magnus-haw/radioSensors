@@ -36,10 +36,10 @@ def list(by='all', name=''):
         return Point.query.all()
     elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
-        return db.session.query(Point).filter(Point.experiment.name.like(name)).all()
+        return Point.query.join(Point.sensor.experiment, aliased=True).filter_by(name=name)
     elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
-        return db.session.query(Point).filter(Point.sensor.name.like(name)).all()
+        return Point.query.join(Point.sensor, aliased=True).filter_by(name=name)
     else: return None
 
 db.create_all()
