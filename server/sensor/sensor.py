@@ -68,15 +68,11 @@ class Sensor:
                 })
                 cache_count+=1
                 if (cache_count >= CACHE_INTERVAL):
-                    yield self.retrieve_cache()
+                    yield self.cache
+                    self.cache.clear()
                     cache_count = 0
                 else:
                     yield None
 
             self.display.show()
             # time.sleep(INTERVAL)
-    
-    def retrieve_cache(self):
-        old_cache = self.cache
-        self.cache.clear()
-        return old_cache
