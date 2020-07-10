@@ -1,0 +1,14 @@
+<!doctype html>
+<title>Hello from Flask</title>
+{% if name %}
+  <h1>This is Sensor {{ name }}!</h1>
+{% else %}
+  <h1>No Sensor selected :'(</h1>
+{% endif %}
+
+{% if temp %}
+  <h2>The temperature is: {{ temp }}!</h2>
+{% else %}
+  <h2>No temperature data :'(</h2>
+{% endif %}
+
