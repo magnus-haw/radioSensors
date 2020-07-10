@@ -76,13 +76,15 @@
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (config.data.labels.length === 20) {
-                config.data.labels.shift();
-                config.data.datasets[0].data.shift();
+            if (data) {
+                if (config.data.labels.length === 20) {
+                    config.data.labels.shift();
+                    config.data.datasets[0].data.shift();
+                }
+                config.data.labels.push(data.timestamp);
+                config.data.datasets[0].data.push(data.value);
+                lineChart.update();
             }
-            config.data.labels.push(data.timestamp);
-            config.data.datasets[0].data.push(data.value);
-            lineChart.update();
         }
     });
 </script>

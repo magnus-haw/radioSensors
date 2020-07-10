@@ -27,9 +27,12 @@ def show_data():
 def stream_data():
     def data_loop():
         while True:
-            json_data = json.dumps(model.list()[-1])
-            yield f"data:{json_data}\n\n"
-            time.sleep(DATA_LOOP_INTERVAL)
+            try:
+                json_data = json.dumps(model.list()[-1])
+                yield f"data:{json_data}\n\n"
+                time.sleep(DATA_LOOP_INTERVAL)
+            except IndexError:
+                pass
     return Response(data_loop(), mimetype='text/event-stream')
 
 @app.route("/realtime")
