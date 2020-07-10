@@ -41,6 +41,9 @@ def realtime_chart():
 
 @app.route("/temperature", methods=["POST"])
 def insert_data():
+    if (isinstance(request.get_json(), list):
+        for data in request.get_json():
+            model.add_data(data)
     model.add_data(request.get_json())
     return "OK"
 
