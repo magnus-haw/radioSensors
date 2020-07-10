@@ -3,7 +3,11 @@ import time
 import json
 from flask import Flask, Response, request, render_template
 from flask_sqlalchemy import SQLAlchemy
-from sensor.sensor import Sensor
+
+import sys
+sys.path.insert(1, '../sensor')
+from sensor import Sensor
+
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
