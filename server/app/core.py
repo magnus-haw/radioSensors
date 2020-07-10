@@ -1,6 +1,7 @@
 import datetime
-from flask import Flask
-from flask import request
+import time
+import json
+from flask import Flask, Response, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sensor.sensor import Sensor
 app = Flask(__name__)
@@ -8,6 +9,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sensor.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+DATA_LOOP_INTERVAL = 1.0
 
 db = SQLAlchemy(app)
 
@@ -16,6 +18,19 @@ import model
 @app.route("/")
 def show_data():
     return str(model.list())
+
+@app.route("/stream")
+def stream_data():
+    def data_loop():
+        while True:
+            json_data = json.dumps(model.list()[-1])
+            yield f"data:{json_data}\n\n"
+            time.sleep(DATA_LOOP_INTERVAL)
+    return Response(data_loop(), mimetype='text/event-stream')
+
+@app.route("/realtime")
+def realtime_chart():
+    return render_template('realtime.html')
 
 @app.route("/temperature", methods=["POST"])
 def insert_data():
