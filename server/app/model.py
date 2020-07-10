@@ -41,7 +41,7 @@ def add_sensor(experiment_name, sensor_name):
 
 def add_data(experiment_name, sensor_name, data):
     sensor = Sensor.query.filter_by(name=sensor_name).join(Sensor.experiment, aliased=True).filter_by(name=experiment_name).first()
-    point = Point(data=data['value'])
+    point = Point(value=data['value'])
     sensor.points.append(point)
     db.session.add(point)
     db.session.commit()
