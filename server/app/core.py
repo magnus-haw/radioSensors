@@ -29,10 +29,7 @@ def stream_data():
         while True:
             try:
                 data = model.list()[-1]
-                json_data = json.dumps({
-                    "data": list(data)[2],
-                    "datetime": list(data)[0].strftime("%m/%d/%Y, %H:%M:%S")
-                })
+                json_data = json.dumps(data)
                 yield f"data:{json_data}\n\n"
                 time.sleep(DATA_LOOP_INTERVAL)
             except IndexError:
