@@ -64,7 +64,7 @@ class Sensor:
             })
 
         self.display.show()
-        time.sleep(INTERVAL)
+        # time.sleep(INTERVAL)
     
     def retrieve_cache(self):
         old_cache = self.cache
