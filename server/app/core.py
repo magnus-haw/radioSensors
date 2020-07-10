@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 
 import model
 
-@app.route("/")
+@app.route("/list")
 def show_data():
     return str(model.list())
 
