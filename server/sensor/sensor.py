@@ -53,6 +53,7 @@ class Sensor:
 
             packet = self.rfm.receive()
             if packet is None:
+                yield None
                 pass
             else:
                 self.display.fill(0)
@@ -69,6 +70,8 @@ class Sensor:
                 if (cache_count >= CACHE_INTERVAL):
                     yield self.retrieve_cache()
                     cache_count = 0
+                else:
+                    yield None
 
             self.display.show()
             # time.sleep(INTERVAL)
