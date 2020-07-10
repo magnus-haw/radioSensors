@@ -15,14 +15,14 @@ class Sensor(db.Model):
     id              = Column(Integer,       primary_key=True)
     name            = Column(String,        nullable=False)
     experiment_id   = Column(Integer,       ForeignKey('experiment.id'))
-    experiment      = relationship("Experiments", back_populates="sensor")
+    experiment      = relationship("Experiment", back_populates="sensor")
     points          = relationship("Point", back_populates="sensor")
 
 
 class Point(db.Model):
     __tablename__ = 'point'
     id              = Column(Integer,       primary_key=True)
-    sensor_id       = Column(Integer,       ForeignKey('sensors.id'))
+    sensor_id       = Column(Integer,       ForeignKey('sensor.id'))
     value           = Column(Float,         nullable=False)
     timestamp       = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow())
     sensor          = relationship("Sensor", back_populates="point")
