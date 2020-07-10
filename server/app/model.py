@@ -26,7 +26,7 @@ def add_data(data):
 
     # data = parser.parse_args()
 
-    db.session.add(TempData(data['data']))
+    db.session.add(TempData('data', data['data']))
     db.session.commit()
 
 def list():
