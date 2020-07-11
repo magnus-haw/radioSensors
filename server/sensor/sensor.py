@@ -7,10 +7,12 @@ import adafruit_rfm69
 import datetime
 
 INTERVAL = 1.0
-CACHE_INTERVAL = 3.0
+CACHE_INTERVAL = 3
 
-class Sensor:
-    def __init__(self):
+class Experiment:
+    def __init__(self, name):
+        self.name = name
+
         i2c = busio.I2C(board.SCL, board.SDA)
         reset_pin = DigitalInOut(board.D4)
         self.display = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c, reset=reset_pin)
@@ -32,6 +34,7 @@ class Sensor:
         self.button['C'].direction = Direction.INPUT
         self.button['C'].pull = Pull.UP
 
+        # Setup RFM
         CS = DigitalInOut(board.CE1)
         RESET = DigitalInOut(board.D25)
         spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
@@ -42,12 +45,15 @@ class Sensor:
             self.rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
             self.rfm.encryption_key = rfm_key
             print('RFM69: Detected')
-            self.cache = []
         except RuntimeError as error:
             print('RFM69 Error: ', error)
+
+        self.sensors = []
+
+    def add_sensor(self, sensor):
+        self.sensors.append(sensor)
     
-    def loop(self):
-        cache_count = 0
+    def listen(self):
         while True:
             self.display.fill(0)
 
@@ -62,17 +68,23 @@ class Sensor:
                 self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)
-                self.cache.append({
-                    'data': float(packet_text)
-                    # 'timestamp': datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
-                })
-                cache_count+=1
-                if (cache_count >= CACHE_INTERVAL):
-                    yield self.cache
-                    self.cache.clear()
-                    cache_count = 0
-                else:
-                    yield None
+                # self.cache.append({
+                #     'data': float(packet_text)
+                #     # 'timestamp': datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+                # })
+                # cache_count+=1
+                # if (cache_count >= CACHE_INTERVAL):
+                #     yield self.cache
+                #     self.cache.clear()
+                #     cache_count = 0
+                # else:
+                #     yield None
 
             self.display.show()
-            # time.sleep(INTERVAL)
+
+            
+
+class Sensor:
+    def __init__(self, name):
+        self.name = name
+        self.cache = []

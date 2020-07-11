@@ -19,7 +19,6 @@ class Sensor(db.Model):
     experiment      = relationship("Experiment", back_populates="sensors")
     points          = relationship("Point", back_populates="sensor", lazy=True)
 
-
 class Point(db.Model):
     __tablename__ = 'point'
     id              = Column(Integer,       primary_key=True)
@@ -54,26 +53,10 @@ def add_data(experiment_name, sensor_name, data):
         db.session.add(point)
         db.session.commit()
 
-def list(by='all', name=''):
-    print(name)
-    if by == 'all':
-        result = Point.query.all()
-        return [x.as_dict() for x in result]
-    elif by == 'sensor':
-        if not name: raise ValueError('Missing argument: name')
-        query = Sensor.query.filter_by(name=name).first()
-        if not query: return []
-        else: return [x.as_dict() for x in query.points]
-    elif by == 'experiment':
-        if not name: raise ValueError('Missing argument: name')
-        result = []
-        query = Experiment.query.filter_by(name=name).first()
-        if not query: return result
-        else:
-            for sensor in query.sensors:
-                result += sensor.points
-        return [x.as_dict() for x in result]
-    else: return []
+def list(experiment_name, sensor_name):
+    sensor = Sensor.query.filter_by(name=sensor_name).join(Sensor.experiment, aliased=True).filter_by(name=experiment_name).first()
+    if not sensor: return []
+    else: return [x.as_dict() for x in sensor.points]
 
 db.create_all()
 db.session.commit()

@@ -4,10 +4,6 @@ import json
 from flask import Flask, Response, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 
-import sys
-sys.path.insert(1, '../sensor')
-from sensor import Sensor
-
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['RADIO_SENSOR_DB'] # for production
@@ -35,7 +31,7 @@ def show_experiment_data(name):
     return str(model.list(by='experiment', name=name))
 
 # Data streaming endpoint
-@app.route("/stream")
+@app.route("/stream/<experiment>/<sensor>")
 def stream_data():
     def data_loop():
         while True:
@@ -54,10 +50,10 @@ def realtime_chart():
     return render_template('realtime.html')
 
 # Post data
-@app.route("/data/<experiment>/<sensor>", methods=["POST"])
+@app.route("/data", methods=["POST"])
 def insert_data(experiment, sensor):
     for data in request.get_json():
-        model.add_data(experiment, sensor, data)
+        model.add_data(data['experiment'], data['sensor'], data['value'])
     return "OK"
 
 if __name__ == "__main__":
