@@ -1,4 +1,5 @@
 import datetime
+import itertools
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from flask_restful import reqparse
@@ -60,13 +61,17 @@ def list(by='all', name=''):
         return [x.as_dict() for x in result]
     elif by == 'sensor':
         if not name: raise ValueError('Missing argument: name')
-        result = Sensor.query.filter_by(name=name).first().points
-        return [x.as_dict() for x in result]
+        query = Sensor.query.filter_by(name=name).first()
+        if not query: return []
+        else: return [x.as_dict() for x in query.points]
     elif by == 'experiment':
         if not name: raise ValueError('Missing argument: name')
         result = []
-        for sensor in Experiment.query.filter_by(name=name).first().sensors:
-            result += sensor.points
+        query = Experiment.query.filter_by(name=name).first()
+        if not query: return result
+        else:
+            for sensor in query.sensors:
+                result += sensor.points
         return [x.as_dict() for x in result]
     else: return []
 
