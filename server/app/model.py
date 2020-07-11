@@ -54,10 +54,6 @@ def add_data(experiment_name, sensor_name, data):
         db.session.add(point)
         db.session.commit()
 
-# def add_data(data):
-#     db.session.add(TempData(data=data['data']))
-#     db.session.commit()
-
 def list(by='all', name=''):
     print(name)
     if by == 'all':

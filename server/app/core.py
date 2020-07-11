@@ -19,18 +19,22 @@ db = SQLAlchemy(app)
 
 import model
 
+# List all data
 @app.route("/list")
 def show_all_data():
     return str(model.list())
 
+# List all data sent by the sensor
 @app.route("/list/sensor/<name>")
 def show_sensor_data(name):
     return str(model.list(by='sensor', name=name))
 
+# List all data belonging to the experiment
 @app.route("/list/experiment/<name>")
 def show_experiment_data(name):
     return str(model.list(by='experiment', name=name))
 
+# Data streaming endpoint
 @app.route("/stream")
 def stream_data():
     def data_loop():
@@ -44,15 +48,16 @@ def stream_data():
                 pass
     return Response(data_loop(), mimetype='text/event-stream')
 
+# Realtime data visualization
 @app.route("/realtime")
 def realtime_chart():
     return render_template('realtime.html')
 
-@app.route("/data", methods=["POST"])
-def insert_data():
+# Post data
+@app.route("/data/<experiment>/<sensor>", methods=["POST"])
+def insert_data(experiment, sensor):
     for data in request.get_json():
-        model.add_data(data)
-    # model.add_data(request.get_json())
+        model.add_data(experiment, sensor, data)
     return "OK"
 
 if __name__ == "__main__":
