@@ -38,17 +38,21 @@ def add_experiment(experiment_name):
 
 def add_sensor(experiment_name, sensor_name):
     experiment = Experiment.query.filter_by(name=experiment_name).first()
-    sensor = Sensor(experiment=experiment, name=sensor_name)
-    experiment.sensors.append(sensor)
-    db.session.add(sensor)
-    db.session.commit()
+    if not experiment: raise ValueError('Experiment not found.')
+    else:
+        sensor = Sensor(experiment=experiment, name=sensor_name)
+        experiment.sensors.append(sensor)
+        db.session.add(sensor)
+        db.session.commit()
 
 def add_data(experiment_name, sensor_name, data):
     sensor = Sensor.query.filter_by(name=sensor_name).join(Sensor.experiment, aliased=True).filter_by(name=experiment_name).first()
-    point = Point(value=data['value'])
-    sensor.points.append(point)
-    db.session.add(point)
-    db.session.commit()
+    if not sensor: raise ValueError('Experiment or sensor not found.')
+    else:
+        point = Point(value=data['value'])
+        sensor.points.append(point)
+        db.session.add(point)
+        db.session.commit()
 
 # def add_data(data):
 #     db.session.add(TempData(data=data['data']))
