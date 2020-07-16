@@ -1,7 +1,8 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime
-from flask_restful import reqparse
-from core import db
+from flask_sqlalchemy import SQLAlchemy as sqla
+
+db = sqla(app)
 
 # Defining a schema for all sensor data
 # class SensorData(db.Model):
@@ -11,26 +12,57 @@ from core import db
 #     timestamp   = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow)
 
 # Defining a schema for each category of sensor data
-class TempData(db.Model):
-    id          = Column(Integer,       nullable=False, primary_key=True)
-    data        = Column(Float,         nullable=False)
-    timestamp   = Column(DateTime,      nullable=False, default=datetime.datetime.utcnow)
+
+class Sensor(db.Model):
+    id              = db.Column(db.Integer,       primary_key=True)
+    name            = db.Column(db.String,        nullable=False)
+    description     = db.Column(db.String,        nullable=True)
+
+    def __repr__(self):
+        return '<Sensor id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
+
+class Calibration(db.Model):
+    id              = db.Column(db.Integer,       primary_key=True)
+    type            = db.Column(db.String(50),    nullable=False)
+    timestamp       = db.Column(db.DateTime,      nullable=False,    default=datetime.datetime.utcnow)
+    expires         = db.Column(db.DateTime,      nullable=False,    default=datetime.datetime.utcnow)
+    a1              = db.Column(db.Float,         nullable=False)
+    a2              = db.Column(db.Float,         nullable=False)
+    a3              = db.Column(db.Float,         nullable=False)
+    a4              = db.Column(db.Float,         nullable=False)
+    sensor_id       = db.Column(db.Integer,       nullable=False,    db.ForeignKey('sensor.id'))
+    sensor          = db.relationship("Sensor",   backref=db.backref('calibrations', lazy=True))
+
+    def __repr__(self):
+        return '<Calibration id=%i, type=%s, timestamp=%s, expires=%s, a1=%f, a2=%f, a3=%f, a4=%f, sensor_id=%i>'\ 
+    %(self.id, self.type, self.timestamp, self.expires, self.a1, self.a2, self.a3, self.a4, self.sensor_id)
+
+class Experiment(db.Model):
+    id              = db.Column(db.Integer,       primary_key=True)
+    name            = db.Column(db.String,        nullable=False)
+    description     = db.Column(db.String,        nullable=True)
+    
+    def __repr__(self):
+        return '<Experiment id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
+
+class Point(db.Model):
+    id              = db.Column(db.Integer,       nullable=False,    primary_key=True)
+    data            = db.Column(db.Float,         nullable=False)
+    time            = db.Column(db.DateTime,      nullable=False,    default=datetime.datetime.utcnow)
+    sensor_id       = db.Column(db.Integer,       nullable=False,    db.ForeignKey('sensor.id'))
+    sensor          = db.relationship("Sensor",   backref=db.backref('points', lazy=True))
+
+    experiment_id   = db.Column(db.Integer,       nullable=False,    db.ForeignKey('sensor.id'))
+    experiment      = db.relationship("Experiment", backref=db.backref('points', lazy=True))
 
     def as_dict(self):
         result = {getattr(self, col.name) for col in self.__table__.columns}
         return result
+   
+    def __repr__(self):
+        return '<Point id=%i, data=%f, time=%s, sensor_id=%i, experiment_id=%i>'\ 
+    %(self.id, self.data, self.time, self.sensor_id, self.experiment_id)
 
-def add_data(data):
-    parser = reqparse.RequestParser()
-    parser.add_argument('data', type=float, required=True)
-
-    data = parser.parse_args()
-
-    db.session.add(TempData(**data))
-    db.session.commit()
-
-def list():
-    return [x.as_dict() for x in TempData.query.all()]
 
 db.create_all()
 db.session.commit()
