@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <Wire.h>
+#include <ArduinoJson.h>
 #include <RH_RF69.h>          // RFM
 #include <Adafruit_GFX.h>     // OLED
 #include <Adafruit_SSD1306.h> // OLED
@@ -72,13 +73,21 @@ void setup()
 void loop() 
 {
   float thermTemp = getTemp();
-  char str[16];
-  snprintf(str, sizeof(str), "%.2f", thermTemp);
-  rf69.send((uint8_t *)str, sizeof(thermTemp));
+
+  const int capacity = JSON_OBJECT_SIZE(2);
+  StaticJsonDocument<capacity> data;
+
+  data["name"] = "temp_sensor_1";
+  data["value"] = getTemp();
+
+  char buf[128];
+  serializeJson(data, buf);
+  
+  rf69.send((uint8_t *)buf, sizeof(buf));
   rf69.waitPacketSent();
   prepareDisplay();
   display.print("Sent Temperature: ");
-  display.println(str);
+  display.println(buf);
   display.display();
 }
 

@@ -28,6 +28,8 @@ def data_update(name):
     else: abort(404)
 
     prev_data = None
+
+    yield f"data:{json.dumps({'reset': True})}\n\n"
     
     data = list(map(lambda point: {'data': point.data, 'timestamp': str(point.time)}, points))
     for point in data:

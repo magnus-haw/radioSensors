@@ -76,7 +76,11 @@
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (data) {
+            if (data.reset) {
+                config.data.datasets[0].data = []
+                lineChart.update();
+            }
+            else if (data.data) {
                 if (config.data.labels.length === 20) {
                     config.data.labels.shift();
                     config.data.datasets[0].data.shift();
