@@ -1,26 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-# Globally accessible libraries
-db = SQLAlchemy()
+app = Flask(__name__, instance_relative_config=False)
+app.config.from_object('config.Config')
+db = SQLAlchemy(app)
 
-def create_app():
-    """Initialize the core application."""
-    app = Flask(__name__, instance_relative_config=False)
-    app.config.from_object('config.Config')
-    
-    # Initialize Plugins
-    db.init_app(app)
-    
-    with app.app_context():
-        from . import routes  # Import routes
-        from . import admin
-        db.create_all()       # Create sql tables
+from . import models
+db.create_all() 
 
-        # Register Blueprints
-#        app.register_blueprint(auth.auth_bp)
-#        app.register_blueprint(admin.admin_bp)
+from . import routes
+from . import admin
 
-        return app
-    
-
+# app.register_blueprint(auth.auth_bp)
+# app.register_blueprint(admin.admin_bp)

@@ -7,7 +7,7 @@ from . import db
 class Sensor(db.Model):
     __tablename__ = 'sensor'
     id              = db.Column(db.Integer,       primary_key=True)
-    name            = db.Column(db.String,        nullable=False)
+    name            = db.Column(db.String,        nullable=False, unique=True)
     description     = db.Column(db.String,        nullable=True)
 
     def __repr__(self):
@@ -54,4 +54,3 @@ class Point(db.Model):
     def __repr__(self):
         return '<Point id=%i, data=%f, time=%s, sensor_id=%i, experiment_id=%i>' \
     %(self.id, self.data, self.time, self.sensor_id, self.experiment_id)
-
