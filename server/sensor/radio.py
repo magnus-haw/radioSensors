@@ -13,9 +13,7 @@ INTERVAL = 1.0
 CACHE_INTERVAL = 3
 
 class RadioBonnet:
-    def __init__(self, name):
-        self.name = name
-
+    def __init__(self):
         i2c = busio.I2C(board.SCL, board.SDA)
         reset_pin = DigitalInOut(board.D4)
         self.display = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c, reset=reset_pin)

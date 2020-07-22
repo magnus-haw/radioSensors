@@ -10,7 +10,8 @@ DATA_LOOP_INTERVAL = 1.0
 @app.route('/', methods=['GET'])
 def index():
     experiments = Experiment.query.all()
-    return render_template('index.html', experiments=experiments)
+    sensors = Sensor.query.all()
+    return render_template('index.html', experiments=experiments, sensors=sensors)
 
 @app.route('/create-experiment', methods=['POST'])
 def create_experiment():

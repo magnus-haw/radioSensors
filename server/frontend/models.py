@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, String, Integer, Float, DateTime
+from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean
 from . import db
 
 # Defining a schema for each category 
@@ -33,6 +33,7 @@ class Experiment(db.Model):
     id              = db.Column(db.Integer,       primary_key=True)
     name            = db.Column(db.String,        nullable=False)
     description     = db.Column(db.String,        nullable=True)
+    active          = db.Column(db.Boolean,       nullable=False, default=False)
     
     def __repr__(self):
         return '<Experiment id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
