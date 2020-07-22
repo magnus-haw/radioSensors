@@ -1,5 +1,6 @@
 import time
 import busio
+import json
 from digitalio import DigitalInOut, Direction, Pull
 import board
 import adafruit_ssd1306
@@ -11,7 +12,7 @@ from ..frontend.models import Experiment, Sensor, Point
 INTERVAL = 1.0
 CACHE_INTERVAL = 3
 
-class RPIExperiment:
+class RadioBonnet:
     def __init__(self, name):
         self.name = name
 
@@ -49,20 +50,13 @@ class RPIExperiment:
             print('RFM69: Detected')
         except RuntimeError as error:
             print('RFM69 Error: ', error)
-
-        self.sensors = []
-
-    def add_sensor(self, sensor):
-        self.sensors.append(sensor)
     
     def listen(self):
         while True:
             self.display.fill(0)
 
             packet = self.rfm.receive()
-            if packet is None:
-                yield None
-                pass
+            if packet is None: pass
             else:
                 self.display.fill(0)
                 self.prev_packet = packet
@@ -70,33 +64,5 @@ class RPIExperiment:
                 self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)
-
-                if len(self.sensors) == 0: self.add_sensor(RPISensor('sensor1'))
-                if len(self.sensors) == 1:
-                    sensor = self.sensors[0]
-                    sensor.cache.append({
-                        'data': float(packet_text),
-                        'unit': None,
-                        'timestamp': datetime.datetime.utcnow()
-                    })
-                for sensor in self.sensors:
-
-
-                # self.cache.append({
-                #     'data': float(packet_text)
-                #     # 'timestamp': datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
-                # })
-                # cache_count+=1
-                # if (cache_count >= CACHE_INTERVAL):
-                #     yield self.cache
-                #     self.cache.clear()
-                #     cache_count = 0
-                # else:
-                #     yield None
-
-            self.display.show()
-
-class RPISensor:
-    def __init__(self, name):
-        self.name = name
-        self.cache = []
+                yield(json.dumps(packet_text))
+                time.sleep(INTERVAL)

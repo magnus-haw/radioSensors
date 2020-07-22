@@ -1,5 +1,5 @@
-from . import app
-from flask import Response, request, render_template, abort
+from . import app, db
+from flask import Response, request, render_template, abort, redirect, url_for, g
 from .models import Sensor, Experiment, Point
 
 import json
@@ -7,18 +7,39 @@ import time
 
 DATA_LOOP_INTERVAL = 1.0
 
+@app.route('/', methods=['GET'])
+def index():
+    experiments = Experiment.query.all()
+    return render_template('index.html', experiments=experiments)
+
+@app.route('/create-experiment', methods=['POST'])
+def create_experiment():
+    name = request.form['experiment-name']
+    description = request.form['experiment-desc']
+    existing = Experiment.query.filter_by(name=name).first()
+
+    if existing: pass
+    else:
+        experiment = Experiment(name=name, description=description)
+        db.session.add(experiment)
+        db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route('/delete-experiment/<experiment_id>', methods=['POST'])
+def delete_experiment(experiment_id):
+    experiment = Experiment.query.filter_by(id=experiment_id).first()
+    db.session.delete(experiment)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 @app.route('/sensor/<name>', methods=['GET'])
 def sensor(name=None):
     return render_template('sensor.html', name=name)
 
 @app.route('/sensor/data/<name>', methods=['GET'])
 def sensor_data(name=None):
-    with app.app_context():
-        return Response(data_update(name), mimetype='text/event-stream')
-
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+    return Response(data_update(name), mimetype='text/event-stream')
 
 def data_update(name):
     points = []
