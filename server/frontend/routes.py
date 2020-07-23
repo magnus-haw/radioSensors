@@ -1,7 +1,7 @@
 from . import app, db
 from flask import Response, request, render_template, abort, redirect, url_for, g
 from .models import Sensor, Experiment, Point
-from ..sensor import init_radio
+from .radio import init_radio
 import threading
 
 import json
