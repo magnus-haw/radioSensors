@@ -1,5 +1,5 @@
 from frontend.models import Sensor, Point
-from radio import RadioBonnet
+from .radio import RadioBonnet
 
 radio = RadioBonnet()
 CACHE_LEVEL = 5
