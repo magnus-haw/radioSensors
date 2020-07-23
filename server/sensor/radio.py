@@ -47,10 +47,14 @@ class RadioBonnet:
             try:
                 self.rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
                 self.rfm.encryption_key = rfm_key
-                print('RFM69: Detected')
+                self.display.fill(0)
+                self.display.text('RFM69: Detected', 0, 0, 1)
+                self.display.show()
                 break
             except RuntimeError as error:
-                print('RFM69 Error: ', error)
+                self.display.fill(0)
+                self.display.text('RFM69 Error: {}'.format(error), 0, 0, 1)
+                self.display.show()
                 time.sleep(INTERVAL)
     
     def listen(self):
@@ -69,6 +73,7 @@ class RadioBonnet:
 
                 self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_data, 25, 0, 1)
+                self.display.show()
 
                 try:
                     json_data = json.loads(packet_data)
