@@ -115,6 +115,7 @@ block content %}
             <th>Name</th>
             <th>Data Points</th>
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -123,6 +124,16 @@ block content %}
             <td>{{ sensor.name }}</td>
             <td>{{ sensor.points|length }}</td>
             <td>test</td>
+            <td>
+              <a
+                class="btn-floating waves-effect waves-light blue tooltipped"
+                data-position="top"
+                data-tooltip="View Data"
+                href="/sensor/{{ sensor.name }}"
+              >
+                <i class="material-icons right">remove_red_eye</i>
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
