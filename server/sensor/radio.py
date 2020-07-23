@@ -57,27 +57,13 @@ class RadioBonnet:
         while True:
             self.display.fill(0)
 
-            CS = DigitalInOut(board.CE1)
-            RESET = DigitalInOut(board.D25)
-            spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-            rfm_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
-
-            while True:
-                try:
-                    rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
-                    rfm.encryption_key = rfm_key
-                    print('RFM69: Detected')
-                    break
-                except RuntimeError as error:
-                    print('RFM69 Error: ', error)
-                    time.sleep(INTERVAL)
-
             packet = rfm.receive()
             if packet is None: pass
             else:
                 self.display.fill(0)
-                packet_text = str(packet, 'utf-8')
-                # self.display.text('RX: ', 0, 0, 1)
+                self.prev_packet = packet
+                packet_text = str(self.prev_packet, 'utf-8')
+                self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)
                 yield(packet_text)
