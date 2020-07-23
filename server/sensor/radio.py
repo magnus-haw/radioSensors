@@ -18,6 +18,9 @@ class RadioBonnet:
         self.display.fill(0)
         self.display.show()
 
+        self.display.text('test', 0, 0, 1)
+        self.display.show()
+
         # Assign Button Pins
         self.button = {}
 
