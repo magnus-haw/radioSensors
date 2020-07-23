@@ -94,7 +94,7 @@ def init_radio(experiment):
     cache = []
 
     for data in radio.listen():
-        sensor = Sensor.filter_by(name=data['name']).first()
+        sensor = Sensor.query.filter_by(name=data['name']).first()
         if not sensor:
             sensor = Sensor(name=data['name'], unit=data['unit'])
             db.session.add(sensor)
