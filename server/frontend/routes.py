@@ -11,7 +11,7 @@ DATA_LOOP_INTERVAL = 1.0
 
 @app.route('/', methods=['GET'])
 def index():
-    experiments = Experiment.query.all()
+    experiments = Experiment.query.order_by(Experiment.id.desc()).all()
     sensors = Sensor.query.all()
     return render_template('index.html', experiments=experiments, sensors=sensors)
 
