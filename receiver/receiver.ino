@@ -88,7 +88,7 @@ void loop()
   
   prepareDisplay();
   display.print("Sent Temperature: ");
-  Serial.println(buf);
+  display.println(buf);
   display.display();
 }
 
