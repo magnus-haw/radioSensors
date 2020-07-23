@@ -43,12 +43,14 @@ class RadioBonnet:
         rfm_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
         self.prev_packet = None
 
-        try:
-            self.rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
-            self.rfm.encryption_key = rfm_key
-            print('RFM69: Detected')
-        except RuntimeError as error:
-            print('RFM69 Error: ', error)
+        while True:
+            try:
+                self.rfm = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
+                self.rfm.encryption_key = rfm_key
+                print('RFM69: Detected')
+                break
+            except RuntimeError as error:
+                print('RFM69 Error: ', error)
     
     def listen(self):
         while True:
@@ -59,7 +61,7 @@ class RadioBonnet:
             else:
                 self.display.fill(0)
                 self.prev_packet = packet
-                packet_text = self.prev_packet.decode('ascii')
+                packet_text = self.prev_packet
                 self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)

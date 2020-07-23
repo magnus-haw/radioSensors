@@ -74,12 +74,10 @@ void loop()
 {
   float thermTemp = getTemp();
 
-  const int capacity = JSON_OBJECT_SIZE(3);
+  const int capacity = JSON_OBJECT_SIZE(1);
   StaticJsonDocument<capacity> data;
 
   data["name"] = "temp_sensor_1";
-  data["value"] = getTemp();
-  data["unit"] = "C";
 
   char buf[128];
   serializeJson(data, buf);
@@ -88,7 +86,6 @@ void loop()
   rf69.waitPacketSent();
   prepareDisplay();
   display.print("Sent Temperature: ");
-  display.println(buf);
   display.display();
 }
 
