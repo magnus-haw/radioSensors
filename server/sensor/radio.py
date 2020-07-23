@@ -70,7 +70,7 @@ class RadioBonnet:
                 except UnicodeDecodeError: continue
 
                 try:
-                    json_data = json.loads(packet_data, parse_float=decimal.Decimal)
+                    json_data = json.loads(packet_data)
                     yield(json_data)
                     self.display.fill(0)
                     self.display.text('Received:', 0, 0, 1)

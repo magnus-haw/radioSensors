@@ -1,6 +1,8 @@
 from . import app, db
 from flask import Response, request, render_template, abort, redirect, url_for, g
 from .models import Sensor, Experiment, Point
+from ..sensor import init_radio
+import threading
 
 import json
 import time
@@ -24,6 +26,9 @@ def create_experiment():
         experiment = Experiment(name=name, description=description)
         db.session.add(experiment)
         db.session.commit()
+
+        sensor_thread = threading.Thread(target=init_radio, args=(experiment,))
+        sensor_thread.start()
 
     return redirect(url_for('index'))
 

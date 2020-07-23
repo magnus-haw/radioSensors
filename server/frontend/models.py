@@ -9,6 +9,7 @@ class Sensor(db.Model):
     id              = db.Column(db.Integer,       primary_key=True)
     name            = db.Column(db.String,        nullable=False, unique=True)
     description     = db.Column(db.String,        nullable=True)
+    unit            = db.Column(db.String,        nullable=True)
 
     def __repr__(self):
         return '<Sensor id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
@@ -40,7 +41,6 @@ class Experiment(db.Model):
 class Point(db.Model):
     id              = db.Column(db.Integer,       nullable=False,    primary_key=True)
     data            = db.Column(db.Float,         nullable=False)
-    unit            = db.Column(db.String,        nullable=True)
     time            = db.Column(db.DateTime,      nullable=False,    default=datetime.datetime.utcnow)
     sensor_id       = db.Column(db.Integer,       db.ForeignKey('sensor.id'),  nullable=False,    )
     sensor          = db.relationship("Sensor",   backref=db.backref('points', lazy=True))
