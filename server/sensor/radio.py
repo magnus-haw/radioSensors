@@ -7,8 +7,6 @@ import adafruit_ssd1306
 import adafruit_rfm69
 import datetime
 
-from ..frontend.models import Experiment, Sensor, Point
-
 INTERVAL = 1.0
 CACHE_INTERVAL = 3
 
