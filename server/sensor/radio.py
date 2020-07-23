@@ -51,6 +51,7 @@ class RadioBonnet:
                 break
             except RuntimeError as error:
                 print('RFM69 Error: ', error)
+                time.sleep(INTERVAL)
     
     def listen(self):
         while True:
