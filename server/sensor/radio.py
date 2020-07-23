@@ -78,7 +78,7 @@ class RadioBonnet:
                 try:
                     json_data = json.loads(packet_data)
                     yield(json_data)
-                    self.display.text('Received:')
+                    self.display.text('Received:', 0, 0, 1)
                     self.display.text(json_data['name'], 25, 0, 1)
                     self.display.text('{} {}'.format(
                         json_data['value'],
