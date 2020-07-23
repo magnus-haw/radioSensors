@@ -57,7 +57,7 @@ class RadioBonnet:
         while True:
             self.display.fill(0)
 
-            packet = rfm.receive()
+            packet = self.rfm.receive()
             if packet is None: pass
             else:
                 self.display.fill(0)
