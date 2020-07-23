@@ -59,30 +59,25 @@ class RadioBonnet:
     
     def listen(self):
         while True:
-            self.display.fill(0)
-
             packet = self.rfm.receive()
             if packet is None: pass
             else:
-                self.display.fill(0)
                 self.prev_packet = packet
 
                 try:
                     packet_data = str(self.prev_packet, 'utf-8')
                 except UnicodeDecodeError: continue
 
-                self.display.text('RX: ', 0, 0, 1)
-                self.display.text(packet_data, 25, 0, 1)
-                self.display.show()
-
                 try:
                     json_data = json.loads(packet_data)
                     yield(json_data)
+                    self.display.fill(0)
                     self.display.text('Received:', 0, 0, 1)
                     self.display.text(json_data['name'], 25, 0, 1)
                     self.display.text('{} {}'.format(
                         json_data['value'],
                         json_data['unit']
                     ), 0, 25, 1)
+                    self.display.show()
                     time.sleep(INTERVAL)
                 except json.decoder.JSONDecodeError: pass
