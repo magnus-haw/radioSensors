@@ -56,9 +56,9 @@ class RadioBonnet:
             else:
                 self.display.fill(0)
                 self.prev_packet = packet
-                packet_text = str(self.prev_packet, "utf-8")
+                packet_text = self.prev_packet.decode('utf-8')
                 self.display.text('RX: ', 0, 0, 1)
                 self.display.text(packet_text, 25, 0, 1)
                 print('Received: ', packet_text)
-                yield(json.dumps(packet_text))
+                yield(packet_text)
                 time.sleep(INTERVAL)
