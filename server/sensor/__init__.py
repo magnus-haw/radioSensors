@@ -1,4 +1,4 @@
-from frontend.models import Sensor, Points
+from frontend.models import Sensor, Point
 from radio import RadioBonnet
 
 radio = RadioBonnet()
