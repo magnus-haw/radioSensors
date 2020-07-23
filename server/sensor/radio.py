@@ -68,7 +68,7 @@ class RadioBonnet:
                 except UnicodeDecodeError: continue
 
                 self.display.text('RX: ', 0, 0, 1)
-                self.display.text(self.prev_packet, 25, 0, 1)
+                self.display.text(packet_data, 25, 0, 1)
 
                 try:
                     json_data = json.loads(packet_data)
