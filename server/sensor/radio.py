@@ -6,6 +6,7 @@ import board
 import adafruit_ssd1306
 import adafruit_rfm69
 import datetime
+import decimal
 
 INTERVAL = 1.0
 CACHE_INTERVAL = 3
@@ -69,7 +70,7 @@ class RadioBonnet:
                 except UnicodeDecodeError: continue
 
                 try:
-                    json_data = json.loads(packet_data)
+                    json_data = json.loads(packet_data, parse_float=decimal.Decimal)
                     yield(json_data)
                     self.display.fill(0)
                     self.display.text('Received:', 0, 0, 1)
