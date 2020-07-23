@@ -31,9 +31,8 @@ class Calibration(db.Model):
 
 class Experiment(db.Model):
     id              = db.Column(db.Integer,       primary_key=True)
-    name            = db.Column(db.String,        nullable=False)
+    name            = db.Column(db.String,        nullable=False, unique=True)
     description     = db.Column(db.String,        nullable=True)
-    active          = db.Column(db.Boolean,       nullable=False, default=False)
     
     def __repr__(self):
         return '<Experiment id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)

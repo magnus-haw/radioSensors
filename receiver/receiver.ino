@@ -65,9 +65,9 @@ void setup()
 
   rf69.setTxPower(20, true);
 
-  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-  rf69.setEncryptionKey(key);
+//  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+//                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+//  rf69.setEncryptionKey(key);
 }
 
 void loop() 
@@ -79,13 +79,14 @@ void loop()
 
   data["name"] = "temp_sensor_1";
 
-  char buf[128];
-  serializeJson(data, buf);
+  char buf[128] = "test1";
+  // serializeJson(data, buf);
   
   rf69.send((uint8_t *)buf, sizeof(buf));
   rf69.waitPacketSent();
   prepareDisplay();
   display.print("Sent Temperature: ");
+  Serial.println(buf);
   display.display();
 }
 
