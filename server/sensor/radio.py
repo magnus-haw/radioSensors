@@ -73,11 +73,11 @@ class RadioBonnet:
                     yield(json_data)
                     self.display.fill(0)
                     self.display.text('Received:', 0, 0, 1)
-                    self.display.text(json_data['name'], 25, 0, 1)
+                    self.display.text(json_data['name'], 0, 12, 1)
                     self.display.text('{} {}'.format(
                         json_data['value'],
                         json_data['unit']
-                    ), 0, 25, 1)
+                    ), 0, 24, 1)
                     self.display.show()
                     time.sleep(INTERVAL)
                 except json.decoder.JSONDecodeError: pass
