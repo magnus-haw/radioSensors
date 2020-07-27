@@ -1,14 +1,16 @@
 {% extends "layouts/base.html" %} {% block title %} Realtime Data: {{
-sensor.name }} {% endblock title %} {% block content %}
+sensor.name }} {% endblock title %} {% block stylesheets %}
+<link type="text/css" rel="stylesheet" href="/static/css/material_table.css" />
+{% endblock stylesheets %} {% block content %}
 <div class="section">
   <div class="row">
-    <div class="col-12">
+    <div class="col s12">
       <h5>Realtime Graph</h5>
       <canvas id="canvas"></canvas>
     </div>
   </div>
   <div class="row">
-    <div class="col-12">
+    <div class="col s12">
       <h5>Data Table</h5>
       <table class="highlight">
         <thead>
@@ -32,6 +34,7 @@ sensor.name }} {% endblock title %} {% block content %}
   </div>
 </div>
 {% endblock content %} {% block javascripts %}
+<script src="/static/js/material_table.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 <script>
   $(document).ready(function () {
