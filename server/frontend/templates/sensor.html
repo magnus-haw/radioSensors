@@ -67,7 +67,7 @@
                 config.data.labels.shift();
                 config.data.datasets[0].data.shift();
             }
-            config.data.labels.push({{ point.time }});
+            config.data.labels.push("{{ point.time }}");
             config.data.datasets[0].data.push({{ point.data }});
         {% endfor %}
 
