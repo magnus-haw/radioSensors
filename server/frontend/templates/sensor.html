@@ -73,7 +73,7 @@
 
         lineChart.update();
 
-        const source = new EventSource("/sensor/data/{{ name }}");
+        const source = new EventSource("/sensor/data/{{ sensor.name }}");
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
