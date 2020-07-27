@@ -56,7 +56,7 @@ def data_update(name):
         try:
             sensor = Sensor.query.filter_by(name=name).first()
             point = Point.query.filter_by(sensor=sensor).order_by(Point.time.desc()).first()
-            data = {'data': point.data, 'timestamp': point.time}
+            data = {'data': point.data, 'timestamp': str(point.time)}
 
             yield f"data:{json.dumps(data)}\n\n"
             time.sleep(DATA_LOOP_INTERVAL)
