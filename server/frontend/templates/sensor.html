@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %} 
-{% block title %} Realtime Data: {{ name }} {% endblock title %} 
+{% block title %} Realtime Data: {{ sensor.name }} {% endblock title %} 
 {% block content %}
 <div class="section">
     <div class="row">
@@ -17,18 +17,19 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: "{{ name }}",
+                    label: "{{ sensor.name }} ({{ sensor.unit }})",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
                     data: [],
                     fill: false,
+                    lineTension: 0
                 }],
             },
             options: {
                 responsive: true,
                 title: {
                     display: true,
-                    text: '{{ name }} Data'
+                    text: '{{ sensor.name|title }} Data'
                 },
                 tooltips: {
                     mode: 'index',
@@ -61,23 +62,28 @@
 
         const lineChart = new Chart(context, config);
 
+        {% for point in sensor.points %}
+            if (config.data.labels.length == 20) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+            }
+            config.data.labels.push(point.time);
+            config.data.datasets[0].data.push(point.data);
+        {% endfor %}
+
+        lineChart.update();
+
         const source = new EventSource("/sensor/data/{{ name }}");
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (data.reset) {
-                config.data.datasets[0].data = []
-                lineChart.update();
+            if (config.data.labels.length === 20) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
             }
-            else if (data.data) {
-                if (config.data.labels.length === 20) {
-                    config.data.labels.shift();
-                    config.data.datasets[0].data.shift();
-                }
-                config.data.labels.push(data.timestamp);
-                config.data.datasets[0].data.push(data.data);
-                lineChart.update();
-            }
+            config.data.labels.push(data.timestamp);
+            config.data.datasets[0].data.push(data.data);
+            lineChart.update();
         }
     });
 </script>
