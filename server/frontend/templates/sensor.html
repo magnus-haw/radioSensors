@@ -77,6 +77,7 @@
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
+            if (data.timestamp == config.data.labels[config.data.labels.length-1]) return
             if (config.data.labels.length === 20) {
                 config.data.labels.shift();
                 config.data.datasets[0].data.shift();
