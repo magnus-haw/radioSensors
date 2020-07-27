@@ -116,7 +116,6 @@ sensor.name }} {% endblock title %} {% block stylesheets %}
           config.data.labels.push(data.timestamp);
           config.data.datasets[0].data.push(data.data);
           lineChart.update();
-          $('#datatable tbody').append(`<tr><td>placeholder</td><td>${data.data}</td><td>${data.timestamp}</td></tr>`);
       }
   });
 </script>
