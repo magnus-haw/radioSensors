@@ -11,25 +11,29 @@ sensor.name }} {% endblock title %} {% block stylesheets %}
   </div>
   <div class="row">
     <div class="col s12">
-      <h5>Data Table</h5>
-      <table class="highlight">
-        <thead>
-          <tr>
-            <th>Experiment</th>
-            <th>Timestamp</th>
-            <th>Value ({{ sensor.unit }})</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for point in sensor.points %}
-          <tr>
-            <td>{{ point.experiment.name }}</td>
-            <td>{{ point.time }}</td>
-            <td>{{ point.data }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="card material-table">
+        <div class="table-header">
+          <span class="table-title">Data Table</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Experiment</th>
+              <th>Timestamp</th>
+              <th>Value ({{ sensor.unit }})</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for point in sensor.points %}
+            <tr>
+              <td>{{ point.experiment.name }}</td>
+              <td>{{ point.time }}</td>
+              <td>{{ point.data }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
