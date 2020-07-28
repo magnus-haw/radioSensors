@@ -64,25 +64,28 @@ class RadioBonnet:
             if packet is None: pass
             else:
                 self.prev_packet = packet
+                self.display.fill(0)
+                self.display.text(str(self, self.prev_packet, 'utf-8'), 0, 0, 1)
+                self.display.show()
 
-                try:
-                    packet_data = str(self.prev_packet, 'utf-8')
-                except UnicodeDecodeError: continue
+                # try:
+                #     packet_data = str(self.prev_packet, 'utf-8')
+                # except UnicodeDecodeError: continue
 
-                try:
-                    json_data = json.loads(packet_data)
-                    yield(json_data)
-                    self.display.fill(0)
-                    self.display.text('Received: {}'.format(len(json_data['points'])), 0, 0, 1)
-                    self.display.text(str([point['data'] for point in json_data['points']]), 0, 12, 1)
-                    # self.display.text(json_data['name'], 0, 12, 1)
-                    # self.display.text('{} {}'.format(
-                    #     json_data['value'],
-                    #     json_data['unit']
-                    # ), 0, 24, 1)
-                    self.display.show()
-                    time.sleep(INTERVAL)
-                except json.decoder.JSONDecodeError: pass
+                # try:
+                #     json_data = json.loads(packet_data)
+                #     yield(json_data)
+                #     self.display.fill(0)
+                #     self.display.text('Received: {}'.format(len(json_data['points'])), 0, 0, 1)
+                #     self.display.text(str([point['data'] for point in json_data['points']]), 0, 12, 1)
+                #     # self.display.text(json_data['name'], 0, 12, 1)
+                #     # self.display.text('{} {}'.format(
+                #     #     json_data['value'],
+                #     #     json_data['unit']
+                #     # ), 0, 24, 1)
+                #     self.display.show()
+                #     time.sleep(INTERVAL)
+                # except json.decoder.JSONDecodeError: pass
 
 from . import db
 from .models import Sensor, Point
