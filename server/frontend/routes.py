@@ -27,7 +27,7 @@ def index():
 @app.route('/start-experiment/<experiment_id>', methods=['POST'])
 def start_experiment(experiment_id):
     experiment = Experiment.query.filter_by(id=experiment_id).first()
-    radio_instance.experiment = experiment
+    radio_instance.set_experiment(experiment)
     return redirect(url_for('index'))
 
 @app.route('/create-experiment', methods=['POST'])
