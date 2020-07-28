@@ -1,7 +1,7 @@
 from . import app, db
 from flask import Response, request, render_template, abort, redirect, url_for, session
 from .models import Sensor, Experiment, Point
-from . import radio
+from . import radio_instance
 
 import json
 import time
@@ -18,8 +18,8 @@ def index():
     return render_template('index.html', 
         experiments=experiments, 
         sensors=sensors,
-        active_experiment=radio.experiment,
-        active_sensors=radio.active
+        active_experiment=radio_instance.experiment,
+        active_sensors=radio_instance.active
     )
 
 @app.route('/create-experiment', methods=['POST'])

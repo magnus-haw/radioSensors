@@ -13,7 +13,7 @@ from . import routes
 from . import admin
 
 from .radio import RadioBonnet
-radio = RadioBonnet()
+radio_instance = RadioBonnet()
 sensor_thread = threading.Thread(target=radio.listen)
 sensor_thread.start()
 
