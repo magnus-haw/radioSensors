@@ -7,12 +7,10 @@ app.config.from_object('config.Config')
 db = SQLAlchemy(app)
 
 from . import models
-db.create_all()
+db.create_all() 
 
-from .radio import RadioBonnet
-radio_instance = RadioBonnet()
-sensor_thread = threading.Thread(target=radio_instance.listen)
-sensor_thread.start()
+from . import routes
+from . import admin
 
 # app.register_blueprint(auth.auth_bp)
 # app.register_blueprint(admin.admin_bp)

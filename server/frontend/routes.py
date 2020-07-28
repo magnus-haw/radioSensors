@@ -8,8 +8,10 @@ import time
 
 DATA_LOOP_INTERVAL = 1.0
 
-running_experiment = None
-running_sensors = []
+from .radio import RadioBonnet
+radio_instance = RadioBonnet()
+sensor_thread = threading.Thread(target=radio_instance.listen)
+sensor_thread.start()
 
 @app.route('/', methods=['GET'])
 def index():
