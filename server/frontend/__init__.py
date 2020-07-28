@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 import threading
@@ -6,7 +6,7 @@ import threading
 app = Flask(__name__, instance_relative_config=False)
 app.config.from_object('config.Config')
 db = SQLAlchemy(app)
-session = Session(app)
+sess = Session(app)
 
 from . import models
 db.create_all() 
