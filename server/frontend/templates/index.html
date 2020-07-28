@@ -16,7 +16,11 @@ block content %}
         </thead>
         <tbody>
           {% for experiment in experiments %}
-          <tr>
+          <tr 
+          {% if (active_experiment is defined) and (experiment == active_experiment) %} 
+            class="active"
+          {% endif %}
+          >
             <td>{{ experiment.name }}</td>
             <td>{{ experiment.description }}</td>
             <td>{{ experiment.points|length }}</td>
@@ -120,7 +124,11 @@ block content %}
         </thead>
         <tbody>
           {% for sensor in sensors %}
-          <tr>
+          <tr
+            {% if sensor.name in active_sensors %}
+            class="active"
+            {% endif %}
+          >
             <td>{{ sensor.name }}</td>
             <td>{{ sensor.points|length }}</td>
             <td>test</td>

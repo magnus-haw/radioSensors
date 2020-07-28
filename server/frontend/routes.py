@@ -15,8 +15,12 @@ running_sensors = []
 def index():
     experiments = Experiment.query.order_by(Experiment.id.desc()).all()
     sensors = Sensor.query.all()
-    print(radio)
-    return render_template('index.html', experiments=experiments, sensors=sensors)
+    return render_template('index.html', 
+        experiments=experiments, 
+        sensors=sensors,
+        active_experiment=radio.experiment,
+        active_sensors=radio.active
+    )
 
 @app.route('/create-experiment', methods=['POST'])
 def create_experiment():
