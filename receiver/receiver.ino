@@ -74,12 +74,13 @@ void loop()
 {
   float thermTemp = getTemp();
 
-  const int capacity = JSON_OBJECT_SIZE(3);
-  StaticJsonDocument<capacity> data;
-
-  data["name"] = "temp_sensor_1";
-  data["value"] = thermTemp;
-  data["unit"] = "C";
+  DynamicJsonDocument data(128);
+  JsonArray points = data.createNestedArray("points");
+  JsonObject temperature = points.createNestedObject();
+  
+  temperature["name"] = "temp_sensor_1";
+  temperature["value"] = thermTemp;
+  temperature["unit"] = "C";
 
   char buf[128];
   serializeJson(data, buf);

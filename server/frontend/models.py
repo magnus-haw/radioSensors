@@ -2,8 +2,6 @@ import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean
 from . import db
 
-# Defining a schema for each category 
-
 class Sensor(db.Model):
     __tablename__ = 'sensor'
     id              = db.Column(db.Integer,       primary_key=True)
@@ -46,7 +44,7 @@ class Point(db.Model):
     sensor          = db.relationship("Sensor",   backref=db.backref('points', lazy=True))
 
     experiment_id   = db.Column(db.Integer,       db.ForeignKey('experiment.id'),nullable=False,    )
-    experiment      = db.relationship("Experiment", backref=db.backref('points', lazy=True))
+    experiment      = db.relationship("Experiment", cascade="all,delete", backref=db.backref('points', lazy=True))
 
     def as_dict(self):
         result = {getattr(self, col.name) for col in self.__table__.columns}
