@@ -16,7 +16,8 @@ CACHE_INTERVAL = 3
 
 class RadioBonnet:
     def __init__(self):
-        self.experiment = None
+        global active_experiment
+        active_experiment = None
         self.active = []
         self.disabled = []
 
@@ -79,10 +80,13 @@ class RadioBonnet:
             return name
         else: return None
 
+    def set_experiment(experiment):
+        active_experiment = experiment
+
     def listen(self):
         while True:
-            print(self.experiment)
-            if self.experiment:
+            print(active_experiment)
+            if active_experiment:
                 packet = self.rfm.receive()
                 if packet is None: pass
                 else:
@@ -114,7 +118,7 @@ class RadioBonnet:
                             point = Point(
                                 data=json_data['value'],
                                 sensor=sensor,
-                                experiment=self.experiment
+                                experiment=active_experiment
                             )
                             db.session.add(point)
                             db.session.commit()
