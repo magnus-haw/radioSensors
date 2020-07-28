@@ -1,4 +1,4 @@
-from flaskApp import create_app
+from frontend import create_app
 
 app = create_app()
 

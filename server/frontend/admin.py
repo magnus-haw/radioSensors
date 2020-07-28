@@ -1,7 +1,8 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
-from . import app, db
+from flask import current_app as app
+from . import db
 from .models import Sensor, Experiment, Calibration, Point
 
 admin = Admin(app, name='RadioSensors', template_mode='bootstrap3')
