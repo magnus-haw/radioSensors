@@ -24,6 +24,12 @@ def index():
         active_sensors=radio_instance.active
     )
 
+@app.route('/start-experiment/<experiment_id>', methods=['POST'])
+def start_experiment():
+    experiment = Experiment.query.filter_by(id=experiment.id).first()
+    radio_instance.experiment = experiment
+    return redirect(url_for('index'))
+
 @app.route('/create-experiment', methods=['POST'])
 def create_experiment():
     name = request.form['experiment-name']

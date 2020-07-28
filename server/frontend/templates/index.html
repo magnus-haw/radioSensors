@@ -11,19 +11,23 @@ block content %}
             <th>Name</th>
             <th>Description</th>
             <th>Data Points</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {% for experiment in experiments %}
-          <tr 
-          {% if (active_experiment is defined) and (experiment == active_experiment) %} 
-            class="active"
-          {% endif %}
-          >
+          <tr>
             <td>{{ experiment.name }}</td>
             <td>{{ experiment.description }}</td>
             <td>{{ experiment.points|length }}</td>
+            <td>
+              {% if (active_experiment is defined) and (experiment == active_experiment) %} 
+                <i class="material-icons">wifi</i>
+              {% else %}
+                <i class="material-icons">wifi_off</i>
+              {% endif %}
+            </td>
             <td>
               <form
                 action="start-experiment/{{ experiment.id }}"
@@ -33,7 +37,7 @@ block content %}
                 <button
                   class="btn-floating waves-effect waves-light green tooltipped"
                   data-position="top"
-                  data-tooltip="Start Listening"
+                  data-tooltip="Activate"
                   type="submit"
                 >
                   <i class="material-icons right">hearing</i>
@@ -124,14 +128,16 @@ block content %}
         </thead>
         <tbody>
           {% for sensor in sensors %}
-          <tr
-            {% if sensor.name in active_sensors %}
-            class="active"
-            {% endif %}
-          >
+          <tr>
             <td>{{ sensor.name }}</td>
             <td>{{ sensor.points|length }}</td>
-            <td>test</td>
+            <td>
+              {% if sensor.name in active_sensors %} 
+                <i class="material-icons">wifi</i>
+              {% else %}
+                <i class="material-icons">wifi_off</i>
+              {% endif %}
+            </td>
             <td>
               <a
                 class="btn-floating waves-effect waves-light blue tooltipped"
