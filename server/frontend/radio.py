@@ -79,12 +79,9 @@ class RadioBonnet:
             return name
         else: return None
 
-    def set_experiment(self, experiment):
-        self.experiment = experiment
-        return experiment
-
     def listen(self):
         while True:
+            print(self.experiment)
             if self.experiment:
                 packet = self.rfm.receive()
                 if packet is None: pass
