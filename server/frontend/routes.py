@@ -1,6 +1,7 @@
 from . import app, db
 from flask import Response, request, render_template, abort, redirect, url_for, session
 from .models import Sensor, Experiment, Point
+from . import radio
 
 import json
 import time
@@ -14,7 +15,7 @@ running_sensors = []
 def index():
     experiments = Experiment.query.order_by(Experiment.id.desc()).all()
     sensors = Sensor.query.all()
-    print(session['radio'])
+    print(radio)
     return render_template('index.html', experiments=experiments, sensors=sensors)
 
 @app.route('/create-experiment', methods=['POST'])

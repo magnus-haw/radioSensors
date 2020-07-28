@@ -5,4 +5,3 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     FLASK_ADMIN_SWATCH = 'cerulean'
     SECRET_KEY='GDtfDCFYjD'
-    SESSION_TYPE='redis'

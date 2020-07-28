@@ -17,7 +17,6 @@ markupsafe = "*"
 sqlalchemy = "*"
 werkzeug = "*"
 wtforms = "*"
-flask-session = "*"
 
 [requires]
 python_version = "3.8"
