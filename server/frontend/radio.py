@@ -61,11 +61,15 @@ class RadioBonnet:
     def listen(self):
         while True:
             packet = self.rfm.receive()
-            if packet is None: pass
+            if packet is None: 
+                print("none")
+                pass
             else:
                 self.prev_packet = packet
                 self.display.fill(0)
-                self.display.text(str(self, self.prev_packet, 'utf-8'), 0, 0, 1)
+                packet_text = str(self, self.prev_packet, 'utf-8')
+                print(packet_text)
+                self.display.text(packet_text, 0, 0, 1)
                 self.display.show()
 
                 # try:
