@@ -17,17 +17,19 @@ def create_app():
     sess.init_app(app)
     
     with app.app_context():
-        from . import routes  # Import routes
-        from . import admin
-        db.create_all()       # Create sql tables
-
-        
         from .radio import RadioBonnet
+
         radio = RadioBonnet()
         session['radio'] = radio
         sensor_thread = threading.Thread(target=radio.listen)
         sensor_thread.start()
 
+        from . import routes  # Import routes
+        from . import admin
+        db.create_all()       # Create sql tables
+
+        
+        
         # Register Blueprints
 #        app.register_blueprint(auth.auth_bp)
 #        app.register_blueprint(admin.admin_bp)
