@@ -20,7 +20,7 @@ def index():
     return render_template('index.html', 
         experiments=experiments, 
         sensors=sensors,
-        active_experiment=radio_instance.experiment,
+        active_experiment=radio_instance.get_experiment(),
         active_sensors=radio_instance.active
     )
 

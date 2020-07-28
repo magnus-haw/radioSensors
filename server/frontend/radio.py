@@ -13,11 +13,10 @@ from .models import Sensor, Point
 
 INTERVAL = 1.0
 CACHE_INTERVAL = 3
+active_experiment = None
 
 class RadioBonnet:
     def __init__(self):
-        global active_experiment
-        active_experiment = None
         self.active = []
         self.disabled = []
 
@@ -80,10 +79,16 @@ class RadioBonnet:
             return name
         else: return None
 
-    def set_experiment(experiment):
+    def get_experiment(self):
+        global active_experiment
+        return active_experiment
+
+    def set_experiment(self, experiment):
+        global active_experiment
         active_experiment = experiment
 
     def listen(self):
+        global active_experiment
         while True:
             print(active_experiment)
             if active_experiment:
