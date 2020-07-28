@@ -1,4 +1,4 @@
-from . import app, db
+from . import db
 from flask import Response, request, render_template, abort, redirect, url_for, session, current_app as app
 from .models import Sensor, Experiment, Point
 
