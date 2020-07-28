@@ -1,5 +1,5 @@
 from . import app, db
-from flask import Response, request, render_template, abort, redirect, url_for, g
+from flask import Response, request, render_template, abort, redirect, url_for, session
 from .models import Sensor, Experiment, Point
 from .radio import init_radio
 import threading
@@ -16,6 +16,7 @@ running_sensors = []
 def index():
     experiments = Experiment.query.order_by(Experiment.id.desc()).all()
     sensors = Sensor.query.all()
+    print(session['radio'])
     return render_template('index.html', experiments=experiments, sensors=sensors)
 
 @app.route('/create-experiment', methods=['POST'])
@@ -29,10 +30,6 @@ def create_experiment():
         experiment = Experiment(name=name, description=description)
         db.session.add(experiment)
         db.session.commit()
-
-        sensor_thread = threading.Thread(target=init_radio, args=(experiment,))
-        sensor_thread.start()
-
     return redirect(url_for('index'))
 
 @app.route('/delete-experiment/<experiment_id>', methods=['POST'])

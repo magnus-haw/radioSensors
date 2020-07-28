@@ -8,11 +8,18 @@ import adafruit_rfm69
 import datetime
 import decimal
 
+from . import db
+from .models import Sensor, Point
+
 INTERVAL = 1.0
 CACHE_INTERVAL = 3
 
 class RadioBonnet:
     def __init__(self):
+        self.experiment = None
+        self.active = []
+        self.disabled = []
+
         i2c = busio.I2C(board.SCL, board.SDA)
         reset_pin = DigitalInOut(board.D4)
         self.display = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c, reset=reset_pin)
@@ -58,58 +65,62 @@ class RadioBonnet:
                 self.display.show()
                 time.sleep(INTERVAL)
     
+    def disable(self, name):
+        if name in self.active:
+            self.active.pop(name)
+            self.disabled.append(name)
+            return name
+        else: return None
+    
+    def enable(self, name):
+        if name in self.disabled:
+            self.disabled.pop(name)
+            self.active.append(name)
+            return name
+        else: return None
+
+    def set_experiment(self, experiment):
+        self.experiment = experiment
+        return experiment
+
     def listen(self):
         while True:
-            packet = self.rfm.receive()
-            if packet is None: 
-                print("none")
-                pass
-            else:
-                self.prev_packet = packet
-                self.display.fill(0)
-                packet_text = str(self, self.prev_packet, 'utf-8')
-                print(packet_text)
-                self.display.text(packet_text, 0, 0, 1)
-                self.display.show()
+            if self.experiment:
+                packet = self.rfm.receive()
+                if packet is None: pass
+                else:
+                    self.prev_packet = packet
 
-                # try:
-                #     packet_data = str(self.prev_packet, 'utf-8')
-                # except UnicodeDecodeError: continue
+                    try:
+                        packet_data = str(self.prev_packet, 'utf-8')
+                    except UnicodeDecodeError: pass
 
-                # try:
-                #     json_data = json.loads(packet_data)
-                #     yield(json_data)
-                #     self.display.fill(0)
-                #     self.display.text('Received: {}'.format(len(json_data['points'])), 0, 0, 1)
-                #     self.display.text(str([point['data'] for point in json_data['points']]), 0, 12, 1)
-                #     # self.display.text(json_data['name'], 0, 12, 1)
-                #     # self.display.text('{} {}'.format(
-                #     #     json_data['value'],
-                #     #     json_data['unit']
-                #     # ), 0, 24, 1)
-                #     self.display.show()
-                #     time.sleep(INTERVAL)
-                # except json.decoder.JSONDecodeError: pass
+                    try:
+                        json_data = json.loads(packet_data)
+                        
+                        self.display.fill(0)
+                        self.display.text('Received:', 0, 0, 1)
+                        self.display.text(json_data['name'], 0, 12, 1)
+                        self.display.text('{} {}'.format(
+                            json_data['value'],
+                            json_data['unit']
+                        ), 0, 24, 1)
+                        self.display.show()
 
-from . import db
-from .models import Sensor, Point
-from .radio import RadioBonnet
-
-radio = RadioBonnet()
-CACHE_LEVEL = 5
-
-def init_radio(experiment):
-    cache = []
-
-    for data in radio.listen():
-        sensor = Sensor.query.filter_by(name=data['name']).first()
-        if not sensor:
-            sensor = Sensor(name=data['name'], unit=data['unit'])
-            db.session.add(sensor)
-        point = Point(
-            data=data['value'],
-            sensor=sensor,
-            experiment=experiment
-        )
-        db.session.add(point)
-        db.session.commit()
+                        if json_data['name'] in self.disabled: pass
+                        elif json_data['name'] not in self.active: self.disabled.append(json_data['name'])
+                        else:
+                            sensor = Sensor.query.filter_by(name=json_data['name']).first()
+                            if not sensor:
+                                sensor = Sensor(name=json_data['name'], unit=json_data['unit'])
+                                db.session.add(sensor)
+                            point = Point(
+                                data=json_data['value'],
+                                sensor=sensor,
+                                experiment=self.experiment
+                            )
+                            db.session.add(point)
+                            db.session.commit()
+                            time.sleep(INTERVAL)
+                    except json.decoder.JSONDecodeError: pass
+        
