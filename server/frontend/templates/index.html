@@ -1,0 +1,168 @@
+{% extends "layouts/base.html" %} {% block title %} Home {% endblock title %} {%
+block content %}
+<div class="section">
+  <div class="row">
+    <div class="col-12">
+      <h5>Experiments:</h5>
+      {% if experiments|length > 0 %}
+      <table class="highlight">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Data Points</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for experiment in experiments %}
+          <tr>
+            <td>{{ experiment.name }}</td>
+            <td>{{ experiment.description }}</td>
+            <td>{{ experiment.points|length }}</td>
+            <td>
+              {% if (active_experiment is defined) and (experiment == active_experiment) %} 
+                <i class="material-icons">wifi</i>
+              {% else %}
+                <i class="material-icons">wifi_off</i>
+              {% endif %}
+            </td>
+            <td>
+              <form
+                action="start-experiment/{{ experiment.id }}"
+                method="post"
+                style="display: inline-block;"
+              >
+                <button
+                  class="btn-floating waves-effect waves-light green tooltipped"
+                  data-position="top"
+                  data-tooltip="Activate"
+                  type="submit"
+                >
+                  <i class="material-icons right">hearing</i>
+                </button>
+              </form>
+              <form
+                action="delete-experiment/{{ experiment.id }}"
+                method="post"
+                style="display: inline-block;"
+              >
+                <button
+                  class="btn-floating waves-effect waves-light red tooltipped"
+                  data-position="top"
+                  data-tooltip="Remove"
+                  type="submit"
+                >
+                  <i class="material-icons right">remove_circle</i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No available experiments.</p>
+      {% endif %}
+      <br />
+      <a
+        class="waves-effect waves-light btn modal-trigger"
+        href="#create-experiment"
+        >Add Experiment</a
+      >
+      <div id="create-experiment" class="modal">
+        <div class="modal-content">
+          <div class="row">
+            <div class="col s12">
+              <form action="create-experiment" method="post">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input
+                      id="experiment-name"
+                      name="experiment-name"
+                      type="text"
+                      class="validate"
+                    />
+                    <label for="experiment-name">Experiment Name</label>
+                  </div>
+                  <div class="input-field col s12">
+                    <textarea
+                      id="experiment-desc"
+                      name="experiment-desc"
+                      class="materialize-textarea"
+                    ></textarea>
+                    <label for="experiment-desc">Description</label>
+                  </div>
+                </div>
+                <button class="btn waves-effect waves-light" type="submit">
+                  Create Experiment
+                  <i class="material-icons right">add</i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-red btn-flat"
+            >Cancel</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="row">
+    <div class="col-12">
+      <h5>Sensors:</h5>
+      {% if sensors|length > 0 %}
+      <table class="highlight">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Data Points</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sensor in sensors %}
+          <tr>
+            <td>{{ sensor.name }}</td>
+            <td>{{ sensor.points|length }}</td>
+            <td>
+              {% if sensor.name in active_sensors %} 
+                <i class="material-icons">wifi</i>
+              {% else %}
+                <i class="material-icons">wifi_off</i>
+              {% endif %}
+            </td>
+            <td>
+              <a
+                class="btn-floating waves-effect waves-light blue tooltipped"
+                data-position="top"
+                data-tooltip="View Data"
+                href="/sensor/{{ sensor.name }}"
+              >
+                <i class="material-icons right">remove_red_eye</i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No available sensors.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %} {% block javascripts %}
+<script>
+  $(document).ready(function () {
+    $(".modal").modal();
+    $(".tooltipped").tooltip();
+  });
+</script>
+{% endblock javascripts %}
