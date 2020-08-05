@@ -1,9 +1,9 @@
 #include <SPI.h>
-#include <Wire.h>
+#include <RH_RF69.h>
+#include <RHReliableDatagram.h>
 #include <ArduinoJson.h>
-#include <RH_RF69.h>          // RFM
-#include <Adafruit_GFX.h>     // OLED
-#include <Adafruit_SSD1306.h> // OLED
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
 
@@ -26,7 +26,18 @@ int samples[NUMSAMPLES];
 #define RFM69_INT 3
 #define RFM69_RST 4
 
+#define RF69_FREQ 915.0
+
+#define DEST_ADDRESS   1
+#define MY_ADDRESS     2
+
+#define RFM69_CS      8
+#define RFM69_INT     3
+#define RFM69_RST     4
+#define LED           13
+
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
+RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
 void setup() 
 {
@@ -38,7 +49,8 @@ void setup()
   display.display();
   delay(2000);
 
-  pinMode(RFM69_RST, OUTPUT);                 // RFM
+  pinMode(LED, OUTPUT);     
+  pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
   digitalWrite(RFM69_RST, HIGH);
@@ -46,32 +58,32 @@ void setup()
   digitalWrite(RFM69_RST, LOW);
   delay(10);
   
-  if (!rf69.init()) {
-    prepareDisplay();
-    display.setCursor(0,0);
-    display.print("RFM69 radio init failed");
+  if (!rf69_manager.init()) {
+    Serial.println("RFM69 radio init failed");
     while (1);
   }
-  prepareDisplay();
-  display.setCursor(0,0);
-  display.print("RFM69 radio init OK!");
-
-  
+  Serial.println("RFM69 radio init OK!");
   if (!rf69.setFrequency(RF69_FREQ)) {
-    prepareDisplay();
-    display.setCursor(0,0);
-    display.print("set frequency failed");
+    Serial.println("setFrequency failed");
   }
 
   rf69.setTxPower(20, true);
-
+  
   uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
   rf69.setEncryptionKey(key);
+  
+  pinMode(LED, OUTPUT);
+
+  Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
 }
 
-void loop() 
-{
+uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+uint8_t data[] = "  OK";
+
+void loop() {
+  delay(1000);
+
   float thermTemp = getTemp();
 
   const int capacity = JSON_OBJECT_SIZE(3);
@@ -81,16 +93,29 @@ void loop()
   data["value"] = thermTemp;
   data["unit"] = "C";
 
-  char buf[128];
-  serializeJson(data, buf);
-
-  rf69.send((uint8_t *)buf, strlen(buf));
-  rf69.waitPacketSent();
+  char packet[128];
+  serializeJson(data, packet);
   
-  prepareDisplay();
-  display.print("Sent Temperature: ");
-  display.println(buf);
-  display.display();
+  Serial.print("Sending "); Serial.println(packet);
+  
+  if (rf69_manager.sendtoWait((uint8_t *)packet, strlen(packet), DEST_ADDRESS)) {
+    uint8_t len = sizeof(buf);
+    uint8_t from;   
+    if (rf69_manager.recvfromAckTimeout(buf, &len, 2000, &from)) {
+      buf[len] = 0;
+      
+      Serial.print("Got reply from #"); Serial.print(from);
+      Serial.print(" [RSSI :");
+      Serial.print(rf69.lastRssi());
+      Serial.print("] : ");
+      Serial.println((char*)buf);     
+      Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
+    } else {
+      Serial.println("No reply, is anyone listening?");
+    }
+  } else {
+    Serial.println("Sending failed (no ack)");
+  }
 }
 
 float getTemp() 
@@ -129,4 +154,13 @@ void prepareDisplay()
   display.setTextSize(1.5);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0,0);
+}
+
+void Blink(byte PIN, byte DELAY_MS, byte loops) {
+  for (byte i=0; i<loops; i++)  {
+    digitalWrite(PIN,HIGH);
+    delay(DELAY_MS);
+    digitalWrite(PIN,LOW);
+    delay(DELAY_MS);
+  }
 }
