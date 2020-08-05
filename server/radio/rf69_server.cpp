@@ -14,13 +14,13 @@
 RH_RF69 rf69(RF_CS_PIN);
 
 // Ctrl-C Handler
-// volatile sig_atomic_t force_exit = false;
+volatile sig_atomic_t force_exit = false;
 
-// void sig_handler(int sig)
-// {
-//   printf("\n%s Break received, exiting!\n", __BASEFILE__);
-//   force_exit=true;
-// }
+void sig_handler(int sig)
+{
+  printf("\n%s Break received, exiting!\n", __BASEFILE__);
+  force_exit=true;
+}
 
 int main(int argc, const char *argv[])
 {
