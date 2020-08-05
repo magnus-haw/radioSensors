@@ -6,8 +6,8 @@
 #include <RH_RF69.h>
 #include <RH_RF69.h>
 
-#define RF_CS_PIN RPI_V2_GPIO_P1_16
-#define RF_RST_PIN RPI_V2_GPIO_P1_25
+#define RF_CS_PIN RPI_V2_GPIO_P1_26
+#define RF_RST_PIN RPI_V2_GPIO_P1_22
 
 #define RF_FREQUENCY 433.0
 
