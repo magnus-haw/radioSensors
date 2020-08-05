@@ -16,16 +16,16 @@ RH_RF69 rf69(RF_CS_PIN);
 // Ctrl-C Handler
 volatile sig_atomic_t force_exit = false;
 
-void sig_handler(int sig)
-{
-  printf("\n%s Break received, exiting!\n", __BASEFILE__);
-  force_exit=true;
-}
+// void sig_handler(int sig)
+// {
+//   printf("\n%s Break received, exiting!\n", __BASEFILE__);
+//   force_exit=true;
+// }
 
 int main(int argc, const char *argv[])
 {
-    signal(SIGINT, sig_handler);
-    printf("%s\n", __BASEFILE__);
+    // signal(SIGINT, sig_handler);
+    // printf("%s\n", __BASEFILE__);
 
     if (!bcm2835_init())
     {
