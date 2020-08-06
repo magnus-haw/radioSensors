@@ -115,7 +115,7 @@ int main(void)
             {
                 res = read(fd, buf, 255);
                 buf[res] = 0; // terminate buffer
-                sscanf(buf, "%d\n", &variable);
+                sscanf(buf, "%s\n", variable);
                 printf("Received %d\n", variable);
             }
         }
