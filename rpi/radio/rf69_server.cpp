@@ -1,99 +1,123 @@
-#include <bcm2835.h>
+#include <termios.h>
 #include <stdio.h>
-#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <stdint.h>
+#include <fcntl.h>
+#include <sys/signal.h>
+#include <sys/types.h>
+#include <termios.h>
+#include <time.h>
+#include <stdbool.h>
+#include <stropts.h>
+#include <poll.h>
 
-#include <RH_RF69.h>
-#include <RH_RF69.h>
+#include <errno.h>
 
-#define RF_CS_PIN RPI_V2_GPIO_P1_26
-#define RF_RST_PIN RPI_V2_GPIO_P1_22
+#define BAUDRATE B115200
+#define DEVICE "/dev/ttyACM0"
 
-#define RF_FREQUENCY 433.0
-
-RH_RF69 rf69(RF_CS_PIN);
-
-// Ctrl-C Handler
-volatile sig_atomic_t force_exit = false;
-
-// void sig_handler(int sig)
-// {
-//   printf("\n%s Break received, exiting!\n", __BASEFILE__);
-//   force_exit=true;
-// }
-
-int main(int argc, const char *argv[])
+int set_interface_attribs(int fd, int speed, int parity)
 {
-    // signal(SIGINT, sig_handler);
-    // printf("%s\n", __BASEFILE__);
-
-    if (!bcm2835_init())
+    struct termios tty;
+    memset(&tty, 0, sizeof tty);
+    if (tcgetattr(fd, &tty) != 0)
     {
-        fprintf(stderr, "%s bcm2835_init() Failed\n\n", __BASEFILE__);
-        return 1;
+        printf("error %d from tcgetattr", errno);
+        return -1;
     }
 
-    printf("RF69 CS=GPIO%d", RF_CS_PIN);
+    cfsetospeed(&tty, speed);
+    cfsetispeed(&tty, speed);
 
-#ifdef RF_RST_PIN
-    printf(", RST=GPIO%d", RF_RST_PIN);
-    // Pulse a reset on module
-    pinMode(RF_RST_PIN, OUTPUT);
-    digitalWrite(RF_RST_PIN, LOW);
-    bcm2835_delay(150);
-    digitalWrite(RF_RST_PIN, HIGH);
-    bcm2835_delay(100);
-#endif
+    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8; // 8-bit chars
+    // disable IGNBRK for mismatched speed tests; otherwise receive break
+    // as \000 chars
+    tty.c_iflag &= ~IGNBRK; // disable break processing
+    tty.c_lflag = 0;        // no signaling chars, no echo,
+                            // no canonical processing
+    tty.c_oflag = 0;        // no remapping, no delays
+    tty.c_cc[VMIN] = 0;     // read doesn't block
+    tty.c_cc[VTIME] = 5;    // 0.5 seconds read timeout
 
-    if (!rf69.init())
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+
+    tty.c_cflag |= (CLOCAL | CREAD);   // ignore device controls,
+                                       // enable reading
+    tty.c_cflag &= ~(PARENB | PARODD); // shut off parity
+    tty.c_cflag |= parity;
+    tty.c_cflag &= ~CSTOPB;
+    tty.c_cflag &= ~CRTSCTS;
+
+    if (tcsetattr(fd, TCSANOW, &tty) != 0)
     {
-        fprintf(stderr, "\nRF69 module init failed, Please verify wiring/module\n");
+        return -1;
     }
-    else
+    return 0;
+}
+
+void set_blocking(int fd, int should_block)
+{
+    struct termios tty;
+    memset(&tty, 0, sizeof tty);
+    if (tcgetattr(fd, &tty) != 0)
     {
-        printf("\nRF69 module seen OK!\r\n");
+        printf("error %d from tggetattr", errno);
+        return;
+    }
 
-        rf69.setTxPower(20);
+    tty.c_cc[VMIN] = should_block ? 1 : 0;
+    tty.c_cc[VTIME] = 5; // 0.5 seconds read timeout
 
-        // Now we change back to Moteino setting to be
-        // compatible with RFM69 library from lowpowerlabs
-        rf69.setModemConfig(RH_RF69::FSK_MOTEINO);
+    if (tcsetattr(fd, TCSANOW, &tty) != 0)
+        printf("error %d setting term attributes", errno);
+}
 
-        rf69.setFrequency(RF_FREQUENCY);
+int main(void)
+{
+    int fd;
+    char buf[255];
+    int variable;
+    struct pollfd fds[1];
+    int ret, res;
 
-        rf69.setModeRx();
+    /* open the device */
+    fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if (fd == 0)
+    {
+        perror(DEVICE);
+        printf("Failed to open DEVICE \"/dev/ttyACM0\"\n");
+        exit(-1);
+    }
 
-        printf("OK @ %3.2fMHz\n", RF_FREQUENCY);
-        printf("Listening packet...\n");
+    set_interface_attribs(fd, BAUDRATE, 0);
+    set_blocking(fd, 0);
 
-        //Begin the main body of code
-        while (!force_exit)
+    /* Open STREAMS device. */
+    fds[0].fd = fd;
+    fds[0].events = POLLRDNORM;
+
+    for (;;) // forever
+    {
+        ret = poll(fds, 1, 1000); //wait for response
+
+        if (ret > 0)
         {
-            if (rf69.available())
+            /* An event on one of the fds has occurred. */
+            if (fds[0].revents & POLLHUP)
             {
-                uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-                uint8_t len = sizeof(buf);
-                uint8_t from = rf69.headerFrom();
-                uint8_t to = rf69.headerTo();
-                uint8_t id = rf69.headerId();
-                uint8_t flags = rf69.headerFlags();
-                int8_t rssi = rf69.lastRssi();
-
-                if (rf69.recv(buf, &len))
-                {
-                    printf("Packet[%02d] #%d => #%d %ddB: ", len, from, to, rssi);
-                    printbuffer(buf, len);
-                }
-                else
-                {
-                    Serial.print("receive failed");
-                }
-                printf("\n");
+                printf("Hangup\n");
             }
-            bcm2835_delay(5);
+            if (fds[0].revents & POLLRDNORM)
+            {
+                res = read(fd, buf, 255);
+                buf[res] = 0; // terminate buffer
+                sscanf(buf, "%d\n", &variable);
+                printf("Received %d\n", variable);
+            }
         }
     }
-    printf("\n%s Ending\n", __BASEFILE__);
-    bcm2835_close();
-    return 0;
 }
