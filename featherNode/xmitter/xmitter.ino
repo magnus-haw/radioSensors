@@ -31,8 +31,6 @@ void setup()
 {
   Serial.begin(115200);
 
-  analogReference(AR_EXTERNAL);               // Thermistor
-
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // OLED
   display.display();
   delay(2000);
@@ -80,6 +78,7 @@ void loop()
   display.print("Sent Temperature: ");
   display.println(str);
   display.display();
+
 }
 
 float getTemp() 

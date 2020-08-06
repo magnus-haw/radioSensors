@@ -1,9 +1,5 @@
-from flask import Flask
-from flask import render_template
-
-app = Flask(__name__)
-
-
+from flask import render_template, current_app as app
+from . import db
 
 @app.route('/<name>')
 def sensor(name=None,temp=None):
@@ -14,5 +10,3 @@ def sensor(name=None,temp=None):
 def hello_world():
     return 'Hello, World!'
 
-if __name__ == "__main__":        # on running python app.py
-    app.run(host= '0.0.0.0', debug=True)                    # run the flask app
