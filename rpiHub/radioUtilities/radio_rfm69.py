@@ -15,6 +15,9 @@ import adafruit_ssd1306
 # Import the RFM69 radio module.
 import adafruit_rfm69
 
+
+
+
 # Button A
 btnA = DigitalInOut(board.D5)
 btnA.direction = Direction.INPUT
@@ -52,45 +55,35 @@ prev_packet = None
 # on the transmitter and receiver (or be set to None to disable/the default).
 rfm69.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
-while True:
+npackets=0
+t0 = time.time()
+FLAG = False
+datastr = ""
+while not FLAG:
     packet = None
     # draw a box to clear the image
-    display.fill(0)
-    display.text('RasPi Radio', 35, 0, 1)
 
     # check for packet rx
     packet = rfm69.receive()
     if packet is None:
-        display.show()
         display.text('- Waiting for PKT -', 15, 20, 1)
     else:
+        npackets +=1 
         # Display the packet text and rssi
-        display.fill(0)
-        prev_packet = packet
-        packet_text = str(prev_packet, "utf-8")
+        #display.fill(0)
+        packet_text = str(packet, "utf-8")
+        datastr += packet_text+'\n'
         display.text('RX: ', 0, 0, 1)
         display.text(packet_text, 25, 0, 1)
-        time.sleep(1)
-
-    if not btnA.value:
-        # Send Button A
-        display.fill(0)
-        button_a_data = bytes("Button A!\r\n","utf-8")
-        rfm69.send(button_a_data)
-        display.text('Sent Button A!', 25, 15, 1)
-    elif not btnB.value:
-        # Send Button B
-        display.fill(0)
-        button_b_data = bytes("Button B!\r\n","utf-8")
-        rfm69.send(button_b_data)
-        display.text('Sent Button B!', 25, 15, 1)
-    elif not btnC.value:
-        # Send Button C
-        display.fill(0)
-        button_c_data = bytes("Button C!\r\n","utf-8")
-        rfm69.send(button_c_data)
-        display.text('Sent Button C!', 25, 15, 1)
-
+        display.text("%f"%(npackets/(time.time()-t0)), 0, 8, 1)
+        #time.sleep(.001)
+        print(npackets,npackets/(time.time()-t0))
     display.show()
-    time.sleep(0.1)
-
+    time.sleep(0.005)
+    display.fill(0)
+    
+    # check FLAG conditions
+    if not btnA.value:
+        # Check Button A
+        FLAG = True
+        print(datastr)
