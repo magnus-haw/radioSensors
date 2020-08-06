@@ -14,7 +14,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define THERMISTORPIN       A0 
 #define THERMISTORNOMINAL   10000 
 #define TEMPERATURENOMINAL  25
-#define NUMSAMPLES          5
+#define NUMSAMPLES          10
 #define BCOEFFICIENT        3950
 #define SERIESRESISTOR      10000 
 int samples[NUMSAMPLES];
@@ -70,14 +70,15 @@ void setup()
 void loop() 
 {
   float thermTemp = getTemp();
-  char str[16];
-  snprintf(str, sizeof(str), "%.2f", thermTemp);
-  rf69.send((uint8_t *)str, sizeof(thermTemp));
+  char str[20];
+  snprintf(str, sizeof(str), "2,%.2f this is a long datastream", thermTemp);
+  rf69.send((uint8_t *)str, strlen(str));
   rf69.waitPacketSent();
   prepareDisplay();
-  display.print("Sent Temperature: ");
+  display.print("Sent Temperature: \n");
   display.println(str);
   display.display();
+  delay(500);
 
 }
 
