@@ -5,7 +5,7 @@ CC            = g++
 all: rf69_server
 
 rf69_server: rf69_server.o
-				g++ rf69_server.o rf69_server
+				g++ -o rf69_server.o rf69_server
 
 rf69_server.o: rf69_server.cpp
 				g++ -c rf69_server.cpp
