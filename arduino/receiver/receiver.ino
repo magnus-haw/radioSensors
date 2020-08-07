@@ -1,6 +1,5 @@
 #include <SPI.h>
 #include <RH_RF69.h>
-#include <RHReliableDatagram.h>
 #include <Adafruit_GFX.h>     // OLED
 #include <Adafruit_SSD1306.h> // OLED
 #define SCREEN_WIDTH 128
@@ -15,7 +14,6 @@
 #define LED           13
 
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
-RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
 // OLED
 #define OLED_RESET 4
@@ -33,24 +31,19 @@ void setup()
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
-  Serial.println("Feather Addressed RFM69 RX Test!");
-  Serial.println();
-
   // manual reset
   digitalWrite(RFM69_RST, HIGH);
   delay(10);
   digitalWrite(RFM69_RST, LOW);
   delay(10);
-  
-  if (!rf69_manager.init()) {
+
+  if (!rf69.init()) {
     Serial.println("RFM69 radio init failed");
     while (1);
   }
   Serial.println("RFM69 radio init OK!");
-  
-  if (!rf69.setFrequency(RF69_FREQ)) {
-    Serial.println("setFrequency failed");
-  }
+
+  rf69.setFrequency(RF69_FREQ);
 
   rf69.setTxPower(20, true);
 
@@ -67,22 +60,13 @@ uint8_t data[] = "OK";
 uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
 
 void loop() {
-  if (rf69_manager.available())
+  if (rf69.available())
   {
+    uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
-    uint8_t from;
-    if (rf69_manager.recvfromAck(buf, &len, &from)) {
-      buf[len] = 0;
-      
-      Serial.print("Got packet from #"); Serial.print(from);
-      Serial.print(" [RSSI :");
-      Serial.print(rf69.lastRssi());
-      Serial.print("] : ");
+    if (rf69.recv(buf, &len)) {
       Serial.println((char*)buf);
       Blink(LED, 40, 3);
-
-      if (!rf69_manager.sendtoWait(data, sizeof(data), from))
-        Serial.println("Sending failed (no ack)");
     }
   }
 }

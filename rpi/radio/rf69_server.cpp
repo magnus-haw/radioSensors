@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <sys/signal.h>
 #include <sys/types.h>
-#include <termios.h>
 #include <time.h>
 #include <stdbool.h>
 #include <stropts.h>
@@ -79,8 +78,9 @@ void set_blocking(int fd, int should_block)
 int main(void)
 {
     int fd;
-    char buf[255];
-    int variable;
+    char buf[20];
+    char name[10];
+    float data;
     struct pollfd fds[1];
     int ret, res;
 
@@ -115,8 +115,9 @@ int main(void)
             {
                 res = read(fd, buf, 255);
                 buf[res] = 0; // terminate buffer
-                sscanf(buf, "%s\n", variable);
-                printf("Received %d\n", variable);
+                sscanf(buf, "%s,%f", name, &data);
+                printf("%s\n", name);
+                printf("%f", data);
             }
         }
     }
