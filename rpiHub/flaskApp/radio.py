@@ -49,11 +49,12 @@ class RadioBonnet(object):
         RESET = DigitalInOut(board.D25)
         spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
         self.rfm69 = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
+        self.stop = False
         # Optionally set an encryption key (16 byte AES key). MUST match both
         # on the transmitter and receiver (or be set to None to disable/the default).
         self.rfm69.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
-    def listen(self,lock,exp_id):
+    def listen(self):
         t0 = time.time()
         FLAG = False
 
@@ -61,43 +62,47 @@ class RadioBonnet(object):
         while not FLAG:          
             ### check for packet rx
             packet = None
-            packet = rfm69.receive()
+            packet = self.rfm69.receive()
             if packet is None:
-                display.text('- Waiting for PKT -', 15, 20, 1)
+                self.display.text('- Waiting for PKT -', 15, 20, 1)
             else:
                 ### Display the packet text 
                 packet_text = str(packet, "utf-8")
-                display.text('RX: ', 0, 0, 1)
-                display.text(packet_text, 25, 0, 1)
+                self.display.text('RX: ', 0, 0, 1)
+                self.display.text(packet_text, 25, 0, 1)
 
                 ### Parse data and add to database
-                valid,sensor_id,value = self.processPacket(packet_text)
-                if valid:
-                    self.postData(exp_id,sensor_id,value)
+                valid = self.processPacket(packet_text)
                     
-            display.show()
-            time.sleep(0.005)
-            display.fill(0)
+            self.display.show()
+            time.sleep(0.01)
+            self.display.fill(0)
             
             # check FLAG conditions
-            if not btnA.value:
+            if not self.btnA.value or self.stop:
                 # Check Button A
                 FLAG = True
-                display.text('- Done -', 15, 20, 1)
-                display.show()
+                self.display.text('- Done -', 15, 20, 1)
+                self.display.show()
                 time.sleep(0.005)
 
     def processPacket(self,packetstr):
-        valid = True; sensor_id=None; value=None
+        valid = True; sensor=None; value=None
         try:
             splitList = packetstr.strip().split(',')
-            sensor_id,value = int(splitList[0]), float(splitList[1])
+            sensor_name,value = splitList[0], float(splitList[1])
+            print(sensor_name,value)
         except:
             print("Packet processing error! Could not split")
             valid = False
-        return valid,sensor_id,value
-
-    def postData(self,exp_id,sensor_id,value):
-        point = Point(data=value,sensor=sensor_id,experiment=exp_id)
+            return valid,sensor,value
+        
+        exp = Experiment.query.get(self.experiment_id)
+        sensor = Sensor.query.filter_by(name=sensor_name).first() 
+        point = Point(data=value,sensor=sensor,experiment=exp)
         db.session.add(point)
         db.session.commit()
+        #except:
+        #    print("Sensor not present in database")
+        #    valid = False
+        return valid,sensor,value

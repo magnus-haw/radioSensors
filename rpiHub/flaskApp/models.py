@@ -9,6 +9,7 @@ class Sensor(db.Model):
     id              = db.Column(db.Integer,       primary_key=True)
     name            = db.Column(db.String,        nullable=False)
     description     = db.Column(db.String,        nullable=True)
+    points = db.relationship('Point', backref='sensor', passive_deletes=True, cascade='all, delete, delete-orphan')
 
     def __repr__(self):
         return '<Sensor id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
@@ -33,7 +34,8 @@ class Experiment(db.Model):
     id              = db.Column(db.Integer,       primary_key=True)
     name            = db.Column(db.String,        nullable=False)
     description     = db.Column(db.String,        nullable=True)
-    
+    points = db.relationship('Point', backref='experiment', passive_deletes=True, cascade='all, delete, delete-orphan')
+
     def __repr__(self):
         return '<Experiment id=%i, name=%s, description=%s>'%(self.id, self.name, self.description)
 
@@ -41,11 +43,8 @@ class Point(db.Model):
     id              = db.Column(db.Integer,       nullable=False,    primary_key=True)
     data            = db.Column(db.Float,         nullable=False)
     time            = db.Column(db.DateTime,      nullable=False,    default=datetime.datetime.utcnow)
-    sensor_id       = db.Column(db.Integer,       db.ForeignKey('sensor.id'),  nullable=False,    )
-    sensor          = db.relationship("Sensor",   backref=db.backref('points', lazy=True))
-
-    experiment_id   = db.Column(db.Integer,       db.ForeignKey('experiment.id'),nullable=False,    )
-    experiment      = db.relationship("Experiment", backref=db.backref('points', lazy=True))
+    sensor_id       = db.Column(db.Integer, db.ForeignKey('sensor.id', ondelete="CASCADE"), nullable=False)
+    experiment_id   = db.Column(db.Integer, db.ForeignKey('experiment.id',ondelete="CASCADE"), nullable=False)
 
     def as_dict(self):
         result = {getattr(self, col.name) for col in self.__table__.columns}
