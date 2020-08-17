@@ -104,7 +104,7 @@ int main(void)
 
     for (;;) // forever
     {
-        ret = poll(fds, 1, 1000); //wait for response
+        ret = poll(fds, 1, 0); //wait for response
 
         if (ret > 0)
         {
@@ -117,11 +117,11 @@ int main(void)
             {
                 res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
-		std::string s = buf;
-		std::string delimiter = ",";
-		std::string token = s.substr(0, s.find(delimiter));
-		std::cout << token << std::endl;
-	    }
+                std::string s = buf;
+                std::string delimiter = ",";
+                std::string token = s.substr(0, s.find(delimiter));
+                std::cout << token << std::endl;
+            }
         }
     }
 }
