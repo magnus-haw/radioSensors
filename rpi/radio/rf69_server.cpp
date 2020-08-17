@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stropts.h>
 #include <poll.h>
+#include <iostream>
 #include <vector>
 
 #include <errno.h>
@@ -114,9 +115,13 @@ int main(void)
             }
             if (fds[0].revents & POLLRDNORM)
             {
-                res = read(fd, buf, 255);
+                res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
-            }
+		std::string s = buf;
+		std::string delimiter = ",";
+		std::string token = s.substr(0, s.find(delimiter));
+		std::cout << token << std::endl;
+	    }
         }
     }
 }
