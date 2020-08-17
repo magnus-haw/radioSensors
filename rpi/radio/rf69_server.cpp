@@ -77,6 +77,7 @@ void set_blocking(int fd, int should_block)
         printf("error %d setting term attributes", errno);
 }
 
+using namespace std;
 int main(void)
 {
     int fd;
@@ -122,7 +123,7 @@ int main(void)
             }
         }
         for(int i = 0; i < data.size(); i++) {
-            std::cout << data[i] << std::endl;
+            cout << data[i] << endl;
         }
     }
 }
