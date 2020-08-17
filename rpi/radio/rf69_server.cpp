@@ -116,7 +116,7 @@ int main(void)
                 res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
                 std::string s = buf;
-                std::string delimiter = "\r\r\n";
+                std::string delimiter = "\0\r\n";
                 std::string name = s.substr(0, s.find(delimiter));
                 std::cout << name << std::endl;
             }
