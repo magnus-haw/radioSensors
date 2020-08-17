@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stropts.h>
 #include <poll.h>
+#include <iostream>
 #include <vector>
 
 #include <errno.h>
@@ -121,7 +122,7 @@ int main(void)
             }
         }
         for(int i = 0; i < data.size(); i++) {
-            std::cout << data[i] << endl;
+            std::cout << data[i] << std::endl;
         }
     }
 }
