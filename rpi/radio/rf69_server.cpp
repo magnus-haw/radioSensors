@@ -116,11 +116,12 @@ int main(void)
                 res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
                 std::string s = buf;
-                // std::string delimiter = ",";
-                // std::string name = s.substr(0, s.find(delimiter));
-                // std::string data = s.substr(s.find(delimiter));
-                std::cout << s << std::endl;
+                std::string delimiter = "\n\n";
+                std::string name = s.substr(0, s.find(delimiter));
+                std::cout << name << std::endl;
             }
         }
     }
+
+    return 0;
 }
