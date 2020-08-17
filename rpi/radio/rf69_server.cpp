@@ -13,7 +13,6 @@
 #include <stdbool.h>
 #include <stropts.h>
 #include <poll.h>
-#include <iostream>
 #include <vector>
 
 #include <errno.h>
@@ -77,15 +76,14 @@ void set_blocking(int fd, int should_block)
         printf("error %d setting term attributes", errno);
 }
 
-using namespace std;
 int main(void)
 {
     int fd;
     char buf[20];
     char name[10];
+    float data;
     struct pollfd fds[1];
     int ret, res;
-    vector<string> data;
 
     /* open the device */
     fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -118,12 +116,7 @@ int main(void)
             {
                 res = read(fd, buf, 255);
                 buf[res] = 0; // terminate buffer
-
-                data.push_back(buf);
             }
-        }
-        for(int i = 0; i < data.size(); i++) {
-            cout << data[i] << endl;
         }
     }
 }
