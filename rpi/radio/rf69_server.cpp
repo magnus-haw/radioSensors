@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stropts.h>
 #include <poll.h>
+#include <vector>
 
 #include <errno.h>
 
@@ -80,9 +81,9 @@ int main(void)
     int fd;
     char buf[20];
     char name[10];
-    float data;
     struct pollfd fds[1];
     int ret, res;
+    vector<string> data;
 
     /* open the device */
     fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -115,10 +116,12 @@ int main(void)
             {
                 res = read(fd, buf, 255);
                 buf[res] = 0; // terminate buffer
-                sscanf(buf, "%s,%f", name, &data);
-                printf("%s\n", name);
-                printf("%f", data);
+
+                data.push_back(buf);
             }
+        }
+        for(int i = 0; i < data.size(); i++) {
+            std::cout << data[i] << endl;
         }
     }
 }
