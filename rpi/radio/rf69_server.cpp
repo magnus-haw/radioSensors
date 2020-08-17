@@ -81,8 +81,6 @@ int main(void)
 {
     int fd;
     char buf[20];
-    char name[10];
-    float data;
     struct pollfd fds[1];
     int ret, res;
 
@@ -118,9 +116,10 @@ int main(void)
                 res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
                 std::string s = buf;
-                std::string delimiter = ",";
-                std::string token = s.substr(0, s.find(delimiter));
-                std::cout << token << std::endl;
+                // std::string delimiter = ",";
+                // std::string name = s.substr(0, s.find(delimiter));
+                // std::string data = s.substr(s.find(delimiter));
+                std::cout << s << std::endl;
             }
         }
     }
