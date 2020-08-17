@@ -17,7 +17,7 @@
 
 #include <errno.h>
 
-#define BAUDRATE B115200
+#define BAUDRATE B9600
 #define DEVICE "/dev/ttyACM0"
 
 int set_interface_attribs(int fd, int speed, int parity)
