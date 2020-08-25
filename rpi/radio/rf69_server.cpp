@@ -117,9 +117,9 @@ int main(void)
                 buf[res] = 0; // terminate buffer
                 std::string s = buf;
                 std::string name = s.substr(0, s.find(","));
-		std::string data = s.substr(s.find(",")+1, s.length()-1);
+		        std::string data = s.substr(s.find(",")+1, s.length()-1);
                 std::cout << name << std::endl;
-		std::cout << data << std::endl;
+		        std::cout << data << std::endl;
             }
         }
     }
