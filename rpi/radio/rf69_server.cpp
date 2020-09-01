@@ -90,8 +90,6 @@ int main(void)
     struct pollfd fds[1];
     int ret, res;
 
-    int exit = 0;
-
     /* open the device */
     fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd == 0)
