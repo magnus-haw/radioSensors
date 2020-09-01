@@ -1,7 +1,8 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+#include <sstream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -14,12 +15,16 @@
 #include <stropts.h>
 #include <poll.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include <errno.h>
 
 #define BAUDRATE B9600
 #define DEVICE "/dev/ttyACM0"
+#define DB_URL "../frontend/test.db"
+
+using namespace std
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
@@ -84,6 +89,8 @@ int main(void)
     struct pollfd fds[1];
     int ret, res;
 
+    int exit = 0;
+
     /* open the device */
     fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd == 0)
@@ -100,6 +107,8 @@ int main(void)
     fds[0].fd = fd;
     fds[0].events = POLLRDNORM;
 
+    ofstream datastore ("data.csv");
+
     for (;;) // forever
     {
         ret = poll(fds, 1, 0); //wait for response
@@ -115,14 +124,19 @@ int main(void)
             {
                 res = read(fd, buf, 20);
                 buf[res] = 0; // terminate buffer
-                std::string s = buf;
-                std::string name = s.substr(0, s.find(","));
-		        std::string data = s.substr(s.find(",")+1, s.length()-1);
-                std::cout << name << std::endl;
-		        std::cout << data << std::endl;
+                string s = buf;
+                if (datastore.is_open()) {
+                    // string name = s.substr(0, s.find(","));
+                    // string data = s.substr(s.find(",")+1, s.length()-1);
+                    datastore << s;
+                }
+                else {
+                    printf("Unable to open file 'datastore'");
+                }
             }
         }
     }
 
+    datastore.close();
     return 0;
 }
