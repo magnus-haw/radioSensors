@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <unistd.h>
 #include <fcntl.h>
