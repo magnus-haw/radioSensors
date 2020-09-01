@@ -25,7 +25,7 @@
 #define DEVICE "/dev/ttyACM0"
 #define DB_URL "../frontend/test.db"
 
-using namespace std
+using namespace std;
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
