@@ -1,6 +1,7 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string>
 #include <cstring>
 #include <sstream>
@@ -26,6 +27,8 @@
 #define DB_URL "../frontend/test.db"
 
 using namespace std;
+
+ofstream datastore ("data.csv");
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
@@ -83,12 +86,26 @@ void set_blocking(int fd, int should_block)
         printf("error %d setting term attributes", errno);
 }
 
+void exit_handler(int s)
+{
+	datastore.close();
+	exit(1);
+}
+
 int main(void)
 {
     int fd;
     char buf[20];
     struct pollfd fds[1];
     int ret, res;
+	
+    struct sigaction sigIntHandler;
+
+    sigIntHandler.sa_handler = exit_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
     /* open the device */
     fd = open(DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -105,8 +122,6 @@ int main(void)
     /* Open STREAMS device. */
     fds[0].fd = fd;
     fds[0].events = POLLRDNORM;
-
-    ofstream datastore ("data.csv");
 
     for (;;) // forever
     {
